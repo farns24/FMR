@@ -54,7 +54,10 @@ function logOn($mainURL, $credentials)
 // $queryUrl has to include root, module(familytree, identity, authorities), version number, services, and parameters
 function FSQuery($credentials, $queryURL)
 {
+	//$queryURL = rawurlencode($queryURL);
 
+	
+	
 	//echo "<script> console.log(".$queryURL."&access_token=".$credentials['accessToken'].");</script>";
 	$request = new HTTP_Request($queryURL);
 	//Authorization

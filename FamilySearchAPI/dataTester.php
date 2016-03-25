@@ -155,33 +155,35 @@ function dataTester($fileName,$credentials)
 			$fourthArrayFemale = array();
 			
 			$famCount = 0;
-
+			//echo "<div class='well'>Sanity Check</div>";
 			foreach($xml->family as $fam)
 			{
-				
+				//echo "<div class='well'>Family</div>";
 				// Iterate through the people in each family - from the XML, not the family array
 				$personCount = 1;
 				 
 				foreach($fam->person as $person)
 				{
-					
+					//echo "<div class='well'>Family person</div>";
 					// Set the person to be used in this loop (Calling classFamily::getMember();)
 					$member = $famArray[$famCount]->getMember((string)$person['id']);
 		
 					// If the person is the first in the list, they are by default the ROOT generation
 					if($personCount == 1)
 					{
-				
+						//echo "<div class='well'>Root Person analized</div>";
 						// Set generation to ROOT
 						$member->setGen(0);
 						$rootArray[] = $member;
 						if ($direction=="Backward")
 						{
+							//echo "<div class='well'>Back Connect</div>";
 							// Recursively set generations for the rest of the family
 							setParents($famArray[$famCount], $member, 1);
 						}
 						else
 						{
+						//echo "<div class='well'>Forward Connect</div>";
 							setChildren($famArray[$famCount], $member, 1);
 						}
 					}
@@ -196,7 +198,8 @@ function dataTester($fileName,$credentials)
 					// Switch on the generation of the member Person
 					$gen = $member->getGen();
 
-					//echo "<h2>Generation $gen</h2>";
+					echo "<h2>Generation $gen</h2>";
+					var_dump($gen);
 					switch($gen)
 					{
 						case 0:
@@ -204,8 +207,7 @@ function dataTester($fileName,$credentials)
 							$member->setDistTo(2,distAncestors($member, $member, 0, 2,$direction));
 							$member->setDistTo(3,distAncestors($member, $member, 0, 3,$direction));
 							$member->setDistTo(4,distAncestors($member, $member, 0, 4,$direction));
-							//$rootArray[] = $member;
-							//echo json_encode($rootArray);
+
 							if(strtolower($member->getGender()) == "male")
 								$rootArrayMale[] = $member;
 							if(strtolower($member->getgender()) == "female")
@@ -216,13 +218,9 @@ function dataTester($fileName,$credentials)
 							$member->setDistTo(2,distAncestors($member, $member, 0, 2,$direction));
 							$member->setDistTo(3,distAncestors($member, $member, 0, 3,$direction));
 							
-							if ($member->getId()=="21TW-8CF")
-							{
-								var_dump($member);
-							}
 							
 							$firstArray[] = $member;
-							//echo json_encode($firstArray);
+
 							if(strtolower($member->getGender()) == "male")
 								$firstArrayMale[] = $member;
 							if(strtolower($member->getgender()) == "female")
@@ -744,6 +742,7 @@ function setChildren(&$family, $member, $gen)
 	// Check generation - cannot be over 4
 	if($gen > 4)
 	{
+		//echo "<div class='well'>$gen out of bounds</div>";
 		return;
 	}
 	// Check if father is in the $family array
@@ -768,6 +767,7 @@ function setChildren(&$family, $member, $gen)
 						
 						// Set the generation
 					$family->getMember((string)$member->getId())->getChildModel((string)$key)->setGen($gen);
+					//echo "<div class='well'>$gen +1</div>";
 					setChildren($family, $family->getMember((string)$member->getId())->getChildModel((string)$key), ($gen + 1));
 						
 
@@ -783,12 +783,13 @@ function setChildren(&$family, $member, $gen)
 }
 
 // Recursive function to set the generations of an entire family
-function setParents(&$family, $member, $gen)
+function setParents(&$family, &$member, $gen)
 {
 	// Check generation - cannot be over 4
 	if($gen > 4)
 	{
 		return;
+		//echo "<div class='well'>Gen too big</div>";
 	}
 	// Check if father is in the $family array
 	
@@ -806,9 +807,14 @@ function setParents(&$family, $member, $gen)
 			$family->getMember($member->getId())->getFather()->setGen($gen);
 			
 			// Call setParents to set the next generation
+			//echo "<div class='well'>$gen +1</div>";
 			setParents($family, $family->getMember($member->getId())->getFather(), ($gen + 1));
 		}
 
+	}
+	else
+	{
+		//echo "<div class='well'>No Father Found</div>";
 	}
 
 	
@@ -827,8 +833,13 @@ function setParents(&$family, $member, $gen)
 			//echo " Mother ".$family->getMember($member->getId())->getMother()->getGen()."<br />";
 			
 			// Call setParents to set the next generation
+			//echo "<div class='well'>$gen +1</div>";
 			setParents($family, $family->getMember($member->getId())->getMother(), ($gen + 1));
 		}
+	}
+	else
+	{
+		//echo "<div class='well'>No Mother Found</div>";
 	}
 
 }
@@ -1027,7 +1038,7 @@ function processFamily($famCount,$fam,$famArray,$direction,$credentials)
 					}
 					else
 					{
-						echo "Gender Not set <br>";
+						//echo "Gender Not set <br>";
 					}
 					// Set the events
 					if(isset($person->assertions->events->event))

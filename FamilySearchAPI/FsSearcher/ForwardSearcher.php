@@ -17,7 +17,7 @@ class ForwardSearcher extends ISearcher {
 
 	public function solve(&$ancestors,$mainURL,$credentials,$person,&$fsConnect,$generation,&$maxGen,&$html) 
 	{
-	
+	echo "<div class = 'well'>Solve</div>";
 	
 	$person = (string)$personObj['id'];
 	$pullGen = 2;

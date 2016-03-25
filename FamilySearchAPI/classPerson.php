@@ -72,7 +72,7 @@ class Person
 			echo "INVALID GENERATION INDICATOR FOR ".$id;
 		}
 	}
-	public function getGen() { return $this->gen; }
+	public function getGen() { return (int)$this->gen; }
 	
 	public function getNumChild() { return $this->numChild;}
 	public function addChild() { $this->numChild++; }
@@ -135,7 +135,7 @@ class Person
 	public function getChildArray()
 	{ 
 		if (isset($this->children)){
-			//echo "<h4>getChildArray()</h4>".json_encode($this->children)."<h4>count</h4>".count($this->children)."<h3>Id</h3>$this->id";
+			
 			return $this->children;
 		}
 		else

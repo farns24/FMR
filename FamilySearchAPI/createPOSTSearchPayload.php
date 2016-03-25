@@ -60,15 +60,15 @@ function buildPayload($POSTVars,$startYear)
 	$startRange= $startYearInt - $giveOrTake;
 	$endRange= $startYearInt + $giveOrTake;
 	
-	$payload = "q=".$event.":"."\"1%20January%20".$startRange."\"-\""."31%20December%20".$endRange."\"%20";
+	$payload = "q=".$event.":"."\"1 January ".$startRange."\"-\""."31 December ".$endRange."\" ";
 	//$payload = "q=$event:\"$startRange.\"-\"$endRange\"%20";
 	//$payload .= $eventPlace.":\"".$city.",%20".$county.",%20".$state."\",%20";
 	
 	$payload .= $eventPlace.":$fullName";
-	$payload = str_replace("+","%20",$payload);
-	$payload = str_replace("%20%20","%20",$payload);
-	$payload = str_replace("%20/%20","%20",$payload);
-	$payload = str_replace("%20,%20","%20",$payload); //, ,
+	$payload = str_replace("+"," ",$payload);
+	//$payload = str_replace("%20%20","%20",$payload);
+	//$payload = str_replace("%20/%20","%20",$payload);
+	//$payload = str_replace("%20,%20","%20",$payload); //, ,
 
 	
 	buildPayloadArray($event,$eventPlace,$city,$state,$county,$startYear,$giveOrTake);
