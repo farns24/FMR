@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+
+<HTML >
+    <HEAD>
+	<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+	
+	</HEAD >
+	<BODY >
+	<nav class="navbar navbar-default">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<a class="navbar-brand" href="#">
+				FMR Testing
+				</a>
+			</div>
+		</div>
+	</nav>
+	
+			
+		  <div  ng-app = "" ng-controller = "testController" ng-style= {"background-color":"#252525"}>
+		  <h2 ng-style= {"color":"lime"}>FMR TESTER</h2>
+			
+			 
+				<div ng-repeat = "test in tests">
+					<h3 ng-style= {"color":"aqua"}>{{ test.name }}</h3>
+						
+						<div ng-repeat = "data in test.info">
+
+						<p ng-if="data.indexOf('Failed')>-1" ng-style= {"color":"red"}> {{data }}</p>
+						<p ng-if="data.indexOf('Passed')>-1" ng-style= {"color":"lime"}>{{ data }}</p>
+				   </div>
+				</div>
+		  </div>
+		  
+		  <script>
+			 function testController($scope,$http) {
+				var url = "http://pintura.byu.edu/fmr/test.php";
+			 
+				$http.get(url).success( function(response) {
+				 
+				   $scope.tests = response;
+				});
+			 }
+		</script>
+	
+		 <script src = "http://ajax.googleapis.com/ajax/libs/angularjs/1.2.15/angular.min.js"></script>
+	</BODY>
+	
+
+
+</HTML>
