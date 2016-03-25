@@ -4,22 +4,27 @@ class DynamicCache {
 
 	private $data = array();
 
-	public function add($pId,$pName,$lat,$lon)
+	public function add($pId,$iso,$lat,$lon)
 	{
 		$entry = array();
 		
-		$entry['name'] = $pName;
+		$entry['iso'] = $iso;
 		$entry['lat'] = $lat;
 		$entry['lon'] = $lon;
 		
-		this->data[$pId] = $entry;
+		$this->data[$pId] = $entry;
 	}
 
 	public function get($pid)
 	{
-
-	
-		return $this->data[$pid];
+		if (array_key_exists($pid,$this->data))
+		{
+			return $this->data[$pid];
+		}
+		else
+		{
+			return array();
+		}
 	}
 	
 	public function loadFromDb()

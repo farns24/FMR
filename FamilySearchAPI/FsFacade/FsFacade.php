@@ -1,20 +1,35 @@
 <?php
-
+require_once('DynamicCache.php');
 	class FsFacade {
 	
 			private $dao = null;
 			private $fsConnect = null;
+			
+			private $cache = null;
 		function __construct()
 		{
 					$this->dao = FmrFactory::createDao();
 					$this->fsConnect = FmrFactory::createFsConnect();
+					$this->cache = new DynamicCache();
 		}
 	
 		public function getLocation($placeId)
 		{
 			$result = array();
-			$row = $this->dao->fetchFromDb($placeId);
-				
+			
+			//Check Cache
+			$cacheRow = $this->cache->get($placeId);
+			
+			if (array_count_values($cacheRow)==3)
+			{
+					$result[0] = $cacheRow['lat'];					
+					$result[1] = $cacheRow['lon'];					
+					$result[2] = $cacheRow['iso'];
+					return result;
+			}
+			else 
+			{
+				$row = $this->dao->fetchFromDb($placeId);
 				// If the family search id is in the places database table, use it
 				$isInDatabase = $row[0] != null && $row[0] != -999;
 				
@@ -37,12 +52,15 @@
 
 					$result = $this->getPlaceFromFS($placeId,$credentials,$pName);
 					
-					$this->lat = $result["lat"];
-					$this->lon = $result["lon"];
-					$this->iso = $result["iso"];
+					$result[0] = $result["lat"];
+					$result[1] = $result["lon"];
+					$result[2] = $result["iso"];
 
+					$this->cache->add($placeId,$result["iso"],$result["lat"],$result["lon"]);
+					
 				}
-		
+				return result;
+			}
 		}
 		
 		
