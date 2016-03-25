@@ -48,6 +48,10 @@ class Place
 			case 1:
 				
 				$location = FmrFactory::getFacade()->getLocation($placeId);
+				
+				echo "<div class = 'well'>";
+					var_dump($location);
+				echo "</div>";
 					
 				$this->lat = $location[0];					
 				$this->lon = $location[1];					

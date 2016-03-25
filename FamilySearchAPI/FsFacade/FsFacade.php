@@ -20,12 +20,12 @@ require_once('DynamicCache.php');
 			//Check Cache
 			$cacheRow = $this->cache->get($placeId);
 			
-			if (array_count_values($cacheRow)==3)
+			if (sizeof($cacheRow)==3)
 			{
 					$result[0] = $cacheRow['lat'];					
 					$result[1] = $cacheRow['lon'];					
 					$result[2] = $cacheRow['iso'];
-					return result;
+					return $result;
 			}
 			else 
 			{
@@ -36,9 +36,7 @@ require_once('DynamicCache.php');
 	
 				if($isInDatabase)
 				{
-					echo "<div class = 'well'>";
-					var_dump($row);
-					echo "</div>";
+					
 					$result[0] = $row[0];					
 					$result[1] = $row[1];					
 					$result[2] = $row[2];
@@ -59,19 +57,19 @@ require_once('DynamicCache.php');
 					$this->cache->add($placeId,$result["iso"],$result["lat"],$result["lon"]);
 					
 				}
-				return result;
+				return $result;
 			}
 		}
 		
 		
 		public function getPlaceFromFS($placeId,$credentials,$pName) {
-				//$credentials = array();
-			/*
+				$credentials = array();
+			
 			$credentials["agent"] = $_COOKIE["agent"];
 			$credentials["accessToken"] = $_COOKIE["accessToken"];
 			$credentials["loggedOn"] = $_COOKIE["loggedOn"];
 			$credentials["mainURL"] = $_COOKIE["mainURL"];
-			*/
+			
 			$latLngURL = $credentials["mainURL"].'platform/places/'.$placeId;
 			$latLngXML = $this->fsConnect->getFSXMLResponse($credentials, $latLngURL);
 
@@ -93,7 +91,7 @@ require_once('DynamicCache.php');
 				$latLngXML = $this->fsConnect->getFSXMLResponse($credentials, $latLngURL);
 				$this->getLatLonFromRequest($lat,$lon,$latLngXML,$insertFlag,$iso, $key,$normalized,$latLngURL,$pName);
 			}
-			echo "<div class = 'well'>$insertFlag</div>";
+
 			if($insertFlag) {
 					$normalized = str_replace("'", "", $normalized);
 
@@ -111,9 +109,7 @@ require_once('DynamicCache.php');
 			//pg_close();
 			
 			$placeArray = array("lat" => $lat, "lon" => $lon, "iso" => $iso);
-			echo "<div class = 'well'>";
-			var_dump($placeArray);
-			echo"</div>";
+			
 			return $placeArray;
 		}
 	
@@ -139,7 +135,7 @@ require_once('DynamicCache.php');
 							$normalized = "'".$place["names"][0]["value"]."'";
 							$key = (string)$place['id'];
 							$insertFlag = true;
-							break;
+							return;
 						}
 							
 
@@ -174,16 +170,16 @@ require_once('DynamicCache.php');
 				{
 					if (isset($latLngXML["entries"]))
 					{
-						//echo "1";
+						
 						if (isset($latLngXML["entries"][0]))
 						{
-							//echo "2";
+							
 							if (isset($latLngXML["entries"][0]["content"]["gedcomx"]["places"]))
 							{
-								//echo "3";
+								
 								if (isset($latLngXML["entries"][0]["content"]["gedcomx"]["places"][0]))	
 								{
-									//echo "4";
+									
 									return $latLngXML["entries"][0]["content"]["gedcomx"]["places"][0]["id"];
 								}
 							}

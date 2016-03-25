@@ -12,14 +12,14 @@ class DynamicCache {
 		$entry['lat'] = $lat;
 		$entry['lon'] = $lon;
 		
-		$this->data[$pId] = $entry;
+		$this->data[(string)$pId] = $entry;
 	}
 
 	public function get($pid)
 	{
-		if (array_key_exists($pid,$this->data))
+		if (array_key_exists((string)$pid,$this->data))
 		{
-			return $this->data[$pid];
+			return $this->data[(string)$pid];
 		}
 		else
 		{
