@@ -28,7 +28,7 @@ class ForwardSearcher extends ISearcher {
 		$personPedigreeResponse =$fsConnect->getFSXMLResponse($credentials, $pedigreeURL);
 		//throw new MyException('checkpoint');
 		// Set the query URL
-		echo 'Url<br>' + $pedigreeURL +'<Br>'+ json_encode($personPedigreeResponse) + '<br>';
+		echo 'Url<br>' + $pedigreeurl +'<Br>'+ json_encode($personPedigreeResponse) + '<br>';
 		$queryURL = $mainURL.'platform/tree/person/';
 					
 				
@@ -44,7 +44,7 @@ class ForwardSearcher extends ISearcher {
 			if ($generation !=2 && substr_count($desc,".")==2)
 			{
 		
-				$ancestors = solve($ancestors,$mainURL,$credentials,$searchedPerson,$fsConnect,$generation+2,$maxGen,$html);
+				solve($ancestors,$mainURL,$credentials,$searchedPerson,$fsConnect,$generation+2,$maxGen,$html);
 			}
 			
 			if (isset($searchedPerson) && isset($searchedPerson["id"]))

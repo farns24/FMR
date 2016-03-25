@@ -16,7 +16,7 @@ class FsConnect{
 
 	public function getFSXMLResponse($credentials, &$queryURL)
 	{
-	//echo $queryURL;
+	echo "<div class= 'well'>$queryURL</div>";
 		$waitTime = 1;
 		do
 		{
@@ -59,7 +59,7 @@ class FsConnect{
 	// Handles Auto-Throttling from Family Search by waiting specified amounts of time before trying query again.
 	public function getFSXMLPOSTResponse($url, $data, $credentials)
 	{
-	//echo $url.$data;
+	echo "<div class= 'well'>$url</div>";
 		// The maximum wait time as recommended by FS
 		$MAXWAITTIME = 32;
 		// Start the wait time between query tries at 1 second

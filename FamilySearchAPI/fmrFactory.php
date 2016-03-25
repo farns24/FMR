@@ -1,6 +1,7 @@
 <?php
 require_once('DAO.php');
 require_once('getFSXMLResponse.php');
+require_once('FsFacade\FsFacade.php');
 class FmrFactory
 {
 	private static $dao = null;
@@ -8,6 +9,8 @@ class FmrFactory
 	private static $fsConnect = null;
 	
 	private static $searcher = null;
+	
+	private static $facade = null;
 	
     public static function createDao()
     {
@@ -59,6 +62,15 @@ class FmrFactory
 	{
 		static::$searcher  = $inFs;
 		
+	}
+	
+	public static function getFacade()
+	{
+		if (!isset(static::$facade))
+		{
+			static::$facade = new FsFacade();
+		}
+		return static::$facade;
 	}
 }
 

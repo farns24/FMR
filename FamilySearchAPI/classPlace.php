@@ -16,8 +16,6 @@ class Place
 	private $lat = null;
 	private $lon = null;
 	private $iso = null;
-	private $dao = null;
-	private $fsConnect = null;
 	
 	// Public Properties
 	public function setLatLon($lat, $lon)
@@ -36,8 +34,7 @@ class Place
 	
 	public function Place($type, $placeId, $placeLat, $placeLon,$credentials,$pName)
 	{
-		$this->dao = FmrFactory::createDao();
-		$this->fsConnect = FmrFactory::createFsConnect();
+
 		// 0 - no place provided, give empty place object
 		// 1 - Place ID provided, get place lat, lon, and ISO from web service
 		// 2 - Latitude and Longitude provided, set them and give empty ISO
@@ -50,47 +47,12 @@ class Place
 			
 			case 1:
 				
-				$row = $this->dao->fetchFromDb($placeId);
+				$location = FmrFactory::getFacade()->getLocation($placeId);
+					
+				$this->lat = $location[0];					
+				$this->lon = $location[1];					
+				$this->iso = $location[2];
 				
-				// If the family search id is in the places database table, use it
-				$isInDatabase = $row[0] != null && $row[0] != -999;
-				
-				if($isInDatabase)
-				{
-			
-					$this->lat = $row[0];					
-					$this->lon = $row[1];					
-					$this->iso = $row[2];
-					
-					$name = $row[3];
-					
-					//If what is in the database does not match the location we are looking for
-					/*if (!namesMatch($name, $pName))
-					{
-						
-						//Delete old entry
-						$this->dao->deleteFromDb($placeId);
-						$isInDatabase = false;
-						
-
-						
-					}*/
- 
-				}
-		
-				//If the family search id is NOT in the places database table, then perform a query and add the place to the database
-				if (!$isInDatabase)
-				{
-					echo "<h1>Not Found in Database</h1>";
-					$placeId = $this->getIdFromName($pName,$credentials);
-
-					$result = $this->getPlaceFromFS($placeId,$credentials,$pName);
-					
-					$this->lat = $result["lat"];
-					$this->lon = $result["lon"];
-					$this->iso = $result["iso"];
-
-				}
 			break;
 			
 			case 2:
@@ -104,144 +66,6 @@ class Place
 	public function Lat() { return $this->lat; }
 	public function Lon() { return $this->lon; }
 	public function ISO() { return $this->iso; }
-
-
-/**
-*
-*/
-public function getIdFromName($pName,$credentials)
-{
-	//var_dump($credentials);
-	$latLngURL = "https://familysearch.org/platform/places/search?access_token=".$credentials['accessToken']."&q=name:\"$pName\"";
-	$latLngURL = str_replace(" ","%20",$latLngURL);
-	//echo "$latLngURL";
-	$latLngXML = $this->fsConnect->getFSXMLResponse($credentials, $latLngURL);
-	
-		if (isset($latLngXML))
-		{
-			if (isset($latLngXML["entries"]))
-			{
-				//echo "1";
-				if (isset($latLngXML["entries"][0]))
-				{
-					//echo "2";
-					if (isset($latLngXML["entries"][0]["content"]["gedcomx"]["places"]))
-					{
-						//echo "3";
-						if (isset($latLngXML["entries"][0]["content"]["gedcomx"]["places"][0]))	
-						{
-							//echo "4";
-							return $latLngXML["entries"][0]["content"]["gedcomx"]["places"][0]["id"];
-						}
-					}
-				}
-			}
-		}
-		
-	return "";
-}
-
-
-public function getLatLonFromRequest(&$lat,&$lon,$latLngXML,&$insertFlag, &$iso, &$key,&$normalized,$latLngURL,$pName)
- {
-	 if (sizeof($latLngXML[places])>0)
-	{
-		//$error = "<h2>No Lat/Lon found for The Following</h2><ul><li>";
-		foreach($latLngXML[places] as $place)
-		{
-			//Check to see if the lat lon are set
-			if (isset($place['latitude'])&&isset($place['longitude']))
-			{
-				$lat = $place["latitude"];
-				$lon = $place["longitude"];
-				
-				if(isset($place['iso'])) {
-					$iso = (string)$place['iso'];
-				}
-				if(isset($place["names"][0]["value"]))
-				{
-					$normalized = "'".$place["names"][0]["value"]."'";
-				}
-				if(isset($place['id']))
-				{
-
-					$key = (string)$place['id'];
-				}
-				if (strpos($pName, $place["names"][0]["value"]) !== FALSE)
-
-				{
-
-					$insertFlag = true;
-					break;
-				}
-
-			}
-			else
-			{
-				continue;
-			}
-		}	
-			
-	}
-	else
-	{
-		$insertFlag = false;
-		
-	}
-	 
-	 
- }
- 
- 
-public function getPlaceFromFS($placeId,$credentials,$pName) {
-		$credentials = array();
-	
-	$credentials["agent"] = $_COOKIE["agent"];
-	$credentials["accessToken"] = $_COOKIE["accessToken"];
-	$credentials["loggedOn"] = $_COOKIE["loggedOn"];
-	$credentials["mainURL"] = $_COOKIE["mainURL"];
-	$latLngURL = $credentials["mainURL"].'platform/places/'.$placeId;
-	$latLngXML = $this->fsConnect->getFSXMLResponse($credentials, $latLngURL);
-
-	
-	$key = $placeId;
-	$normalized = '';
-	$lat = -999;
-	$lng = -999;
-	$iso = -999;
-	$insertFlag = false;
-	
-	
-	$this->getLatLonFromRequest($lat,$lon,$latLngXML,$insertFlag,$iso, $key,$normalized,$latLngURL,$pName);
-	
-	if (!$insertFlag)
-	{
-		//try description
-		$latLngURL = $credentials["mainURL"].'platform/places/description/'.$placeId;//.'?';
-		$latLngXML = $this->fsConnect->getFSXMLResponse($credentials, $latLngURL);
-		$this->getLatLonFromRequest($lat,$lon,$latLngXML,$insertFlag,$iso, $key,$normalized,$latLngURL,$pName);
-	}
-	
-	if($insertFlag) {
-			$normalized = str_replace("'", "", $normalized);
-
-	
-			try{
-			
-				$this->dao->insertISOLocation($key, $normalized, $lat, $lng, $iso);
-			}
-			catch(Exception $e)
-			{
-			
-			}
-	
-	}
-	//pg_close();
-	
-	$placeArray = array("lat" => $lat, "lon" => $lon, "iso" => $iso);
-	
-	return $placeArray;
-}
 
 public function getLatLonFromGoogle ($place) {
 	 $lat = -999;
