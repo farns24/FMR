@@ -1,0 +1,565 @@
+		
+		
+		
+		<br /><br />
+		
+		 <div class="modal fade" id="myModal" role="dialog">
+		<div class="modal-dialog">
+    
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+			<h4 class="modal-title">Modal Header</h4>
+				</div>
+				<div class="modal-body">
+				<a href="https://qtrial2016q1az1.az1.qualtrics.com/jfe/form/SV_cHfztzsZL8W5XnL" class="btn btn-default">Take a quick survey to rate the app</a>
+				</div>
+				<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				</div>
+			</div>
+      
+			</div>
+		</div>
+		
+		<script type="text/javascript">
+			//$(window).load(function(){
+			//$('#myModal').modal('show');
+			//});
+		</script>
+		
+		<div id="myDebuggerDiv" class="%searchFile%"></div>
+		<script src="/fmr/react/fileDebugger.js"  type = "text/babel"></script>
+		
+		<div class="sectionTitle">Basic Stats From Included Files</div>
+		<hr />
+		<br /><br />
+		<table id="basicStats" class="statsTable table">
+			<thead>
+			<tr>
+				<th class="nobg">Filename</th>
+				<th># Families</th>
+				<th># People 1st Gen</th>
+				<th># People 2nd Gen</th>
+				<th># People 3rd Gen</th>
+				<th># People 4th Gen</th>
+				<th>Total # People</th>
+			</tr>
+			</thead>
+			<tbody>
+			<tr>
+				<th class="spec">%fileName%</th>
+				<td>%numFamilies%</td>
+				<td>
+					Possible: %1Genposs%<br />
+					Known: %1Genknow%<br />
+					Unique: %1Genuniq%<br />
+					<div>
+						<a href="data/v2/chr_map_data/map1.html?a=193834923283943842923" onclick="return hs.htmlExpand(this, { objectType: 'iframe', width: '1000' } )">Map</a>
+					</div>
+				</td>
+				<td>
+					Possible: %2Genposs%<br />
+					Known: %2Genknow%<br />
+					Unique: %2Genuniq%<br />
+					<div>
+						<a href="data/v2/chr_map_data/map2.html?a=193834923283943842923" onclick="return hs.htmlExpand(this, { objectType: 'iframe', width: '1000' } )">Map</a>
+					</div>
+				</td>
+				<td>
+					Possible: %3Genposs%<br />
+					Known: %3Genknow%<br />
+					Unique: %3Genuniq%<br />
+					<div>
+						<a href="data/v2/chr_map_data/map3.html?a=193834923283943842923" onclick="return hs.htmlExpand(this, { objectType: 'iframe', width: '1000' } )">Map</a>
+					</div>
+				</td>
+				<td>
+					Possible: %4Genposs%<br />
+					Known: %4Genknow%<br />
+					Unique: %4Genuniq%<br />
+					<div>
+						<a href="data/v2/chr_map_data/map4.html?a=193834923283943842923" onclick="return hs.htmlExpand(this, { objectType: 'iframe', width: '1000' } )">Map</a>
+					</div>
+				</td>
+				<td>%numPeople%</td>
+			</tr>
+			</tbody>
+		</table>
+		<br />
+		<div class="tableTitle">
+			Number of Root Individuals that could be counted (had valid birth and death dates): %numBD%<br />
+			Mean Distance Root Generation Migrated Birth to Death: <td class="statsTable">%mdrbd%</td><br />
+			Map the root generation death places: 
+			<a href="data/v2/chr_map_data/root_death_map.html?a=193834923283943842923" onclick="return hs.htmlExpand(this, { objectType: 'iframe', width: '1000' } )">Map</a>
+		</div>
+		
+                <br /><br /><br />
+                <div class="sectionTitle"><h2>More Detailed Stats</h2></div>
+                <hr />
+        
+                <br /><br />
+            <div class="row">
+        	<div class="col-md-6 well">
+                <div class="tableTitle"><h3>Mean Distance of Migration by Generation (mi)</h3></div>
+                <table id="meanCenter" class="statsTable table">
+                    <tr>
+                        <th class="nobg"></th>
+                        <th>Root</th>
+                        <th>1st Gen</th>
+                        <th>2nd Gen</th>
+                        <th>3rd Gen</th>
+                        <th>4th Gen</th>
+                    </tr>
+                    <tr>
+                        <th class="spec">Root</th>
+                        <td>0</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <th class="specalt">1st Gen</th>
+                        <td class="alt">%mdDistRoot1%</td>
+                        <td class="alt">0</td>
+                        <td class="alt">-</td>
+                        <td class="alt">-</td>
+                        <td class="alt">-</td>
+                    </tr>
+                    <tr>
+                        <th class="spec">2nd Gen</th>
+                        <td>%mdDistRoot2%</td>
+                        <td>%mdDist12%</td>
+                        <td>0</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <th class="specalt">3rd Gen</th>
+                        <td class="alt">%mdDistRoot3%</td>
+                        <td class="alt">%mdDist13%</td>
+                        <td class="alt">%mdDist23%</td>
+                        <td class="alt">0</td>
+                        <td class="alt">-</td>
+                    </tr>
+                    <tr>
+                        <th class="spec">4th Gen</th>
+                        <td>%mdDistRoot4%</td>
+                        <td>%mdDist14%</td>
+                        <td>%mdDist24%</td>
+                        <td>%mdDist34%</td>
+                        <td>0</td>
+                    </tr>
+                </table>
+                <br /><br />
+                </div>
+        		<div class="col-md-6 well">
+                <div class="tableTitle"><h3>Mean Distance of Migration by Generation (mi) Males Only</h3></div>
+                <table id="meanCenter" class="statsTable table">
+                    <tr>
+                        <th class="nobg"></th>
+                        <th>Root</th>
+                        <th>1st Gen</th>
+                        <th>2nd Gen</th>
+                        <th>3rd Gen</th>
+                        <th>4th Gen</th>
+                    </tr>
+                    <tr>
+                        <th class="spec">Root</th>
+                        <td>0</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <th class="specalt">1st Gen</th>
+                        <td class="alt">%mdDistRoot1m%</td>
+                        <td class="alt">0</td>
+                        <td class="alt">-</td>
+                        <td class="alt">-</td>
+                        <td class="alt">-</td>
+                    </tr>
+                    <tr>
+                        <th class="spec">2nd Gen</th>
+                        <td>%mdDistRoot2m%</td>
+                        <td>%mdDist12m%</td>
+                        <td>0</td>
+                        <td>-</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <th class="specalt">3rd Gen</th>
+                        <td class="alt">%mdDistRoot3m%</td>
+                        <td class="alt">%mdDist13m%</td>
+                        <td class="alt">%mdDist23m%</td>
+                        <td class="alt">0</td>
+                        <td class="alt">-</td>
+                    </tr>
+                    <tr>
+                        <th class="spec">4th Gen</th>
+                        <td>%mdDistRoot4m%</td>
+                        <td>%mdDist14m%</td>
+                        <td>%mdDist24m%</td>
+                        <td>%mdDist34m%</td>
+                        <td>0</td>
+                    </tr>
+                </table>
+            </div>
+		</div>
+		<br /><br />
+        <div class="row">
+        <div class="col-md-6 well">
+		<div class="tableTitle"><h3>Mean Distance of Migration by Generation (mi) Females Only</h3></div>
+		<table id="meanCenter" class="statsTable table">
+			<tr>
+				<th class="nobg"></th>
+				<th>Root</th>
+				<th>1st Gen</th>
+				<th>2nd Gen</th>
+				<th>3rd Gen</th>
+				<th>4th Gen</th>
+			</tr>
+			<tr>
+				<th class="spec">Root</th>
+				<td>0</td>
+				<td>-</td>
+				<td>-</td>
+				<td>-</td>
+				<td>-</td>
+			</tr>
+			<tr>
+				<th class="specalt">1st Gen</th>
+				<td class="alt">%mdDistRoot1f%</td>
+				<td class="alt">0</td>
+				<td class="alt">-</td>
+				<td class="alt">-</td>
+				<td class="alt">-</td>
+			</tr>
+			<tr>
+				<th class="spec">2nd Gen</th>
+				<td>%mdDistRoot2f%</td>
+				<td>%mdDist12f%</td>
+				<td>0</td>
+				<td>-</td>
+				<td>-</td>
+			</tr>
+			<tr>
+				<th class="specalt">3rd Gen</th>
+				<td class="alt">%mdDistRoot3f%</td>
+				<td class="alt">%mdDist13f%</td>
+				<td class="alt">%mdDist23f%</td>
+				<td class="alt">0</td>
+				<td class="alt">-</td>
+			</tr>
+			<tr>
+				<th class="spec">4th Gen</th>
+				<td>%mdDistRoot4f%</td>
+				<td>%mdDist14f%</td>
+				<td>%mdDist24f%</td>
+				<td>%mdDist34f%</td>
+				<td>0</td>
+			</tr>
+		</table>
+		
+		<br /><br />
+        </div>
+        <div class = "col-md-6 well">
+		<div class="tableTitle"><h3>Ancestor Dispersal Index</h3></div>
+		<table id="meanCenter" class="statsTable table">
+			<tr>
+				<th class="nobg">Equation</th>
+				<th>(MD 1st to 2nd)/(MD 0th to 1st)</th>
+				<th>(MD 2nd to 3rd)/(MD 0th to 1st)</th>
+				<th>(MD 3rd to 4th)/(MD 0th to 1st)</th>
+			</tr>
+			<tr>
+				<th class="spec">Value</th>
+				<td>%adi12%</td>
+				<td>%adi23%</td>
+				<td>%adi34%</td>
+			</tr>
+		</table>
+		</div>
+        </div>
+        
+		<br /><br />
+        <div class="row"><div class="col-md-6 well">
+		<div class="tableTitle"><h3>Mean Center of Distribution by Generation</h3></div>
+		<table id="meanCenter" class="statsTable table">
+			<tr>
+				<th class="nobg">Root</th>
+				<th>1st Gen</th>
+				<th>2nd Gen</th>
+				<th>3rd Gen</th>
+				<th>4th Gen</th>
+			</tr>
+			<tr>
+				<th class="spec">%mcRoot%</th>
+				<td>%mc1%
+					<br />
+					<div>
+						<a href="data/v2/chr_map_data/mcmap1.html?a=193834923283943842923" onclick="return hs.htmlExpand(this, { objectType: 'iframe', width: '1000' } )">Map</a>
+					</div>
+				</td>
+				<td>%mc2%
+					<br />
+					<div>
+						<a href="data/v2/chr_map_data/mcmap2.html?a=193834923283943842923" onclick="return hs.htmlExpand(this, { objectType: 'iframe', width: '1000' } )">Map</a>
+					</div>
+				</td>
+				<td>%mc3%
+					<br />
+					<div>
+						<a href="data/v2/chr_map_data/mcmap3.html?a=193834923283943842923" onclick="return hs.htmlExpand(this, { objectType: 'iframe', width: '1000' } )">Map</a>
+					</div>
+				</td>
+				<td>%mc4%
+					<br />
+					<div>
+						<a href="data/v2/chr_map_data/mcmap4.html?a=193834923283943842923" onclick="return hs.htmlExpand(this, { objectType: 'iframe', width: '1000' } )">Map</a>
+					</div>
+				</td>
+			</tr>
+		</table>
+		
+		<br /><br />
+        </div>
+        <div class="col-md-6 well">
+		<div class="tableTitle"><h3>Distance Between Mean Centers of Generations Matrix (mi)</h3></div>
+		<table id="meanCenter" class="statsTable table">
+			<tr>
+				<th class="nobg"></th>
+				<th>Root</th>
+				<th>1st Gen</th>
+				<th>2nd Gen</th>
+				<th>3rd Gen</th>
+				<th>4th Gen</th>
+			</tr>
+			<tr>
+				<th class="spec">Root</th>
+				<td>0</td>
+				<td>-</td>
+				<td>-</td>
+				<td>-</td>
+				<td>-</td>
+			</tr>
+			<tr>
+				<th class="specalt">1st Gen</th>
+				<td class="alt">%mcDistRoot1%</td>
+				<td class="alt">0</td>
+				<td class="alt">-</td>
+				<td class="alt">-</td>
+				<td class="alt">-</td>
+			</tr>
+			<tr>
+				<th class="spec">2nd Gen</th>
+				<td>%mcDistRoot2%</td>
+				<td>%mcDist12%</td>
+				<td>0</td>
+				<td>-</td>
+				<td>-</td>
+			</tr>
+			<tr>
+				<th class="specalt">3rd Gen</th>
+				<td class="alt">%mcDistRoot3%</td>
+				<td class="alt">%mcDist13%</td>
+				<td class="alt">%mcDist23%</td>
+				<td class="alt">0</td>
+				<td class="alt">-</td>
+			</tr>
+			<tr>
+				<th class="spec">4th Gen</th>
+				<td>%mcDistRoot4%</td>
+				<td>%mcDist14%</td>
+				<td>%mcDist24%</td>
+				<td>%mcDist34%</td>
+				<td>0</td>
+			</tr>
+		</table>
+		</div>
+        </div>
+		<br /><br />
+        <div class="row"><div class="col-md-6 well">
+		<div class="tableTitle"><h3>Standard Distance of Distribution by Generation (mi)</h3></div>
+		<table id="meanCenter" class="statsTable table">
+			<tr>
+				<th class="nobg">Root</th>
+				<th>1st Gen</th>
+				<th>2nd Gen</th>
+				<th>3rd Gen</th>
+				<th>4th Gen</th>
+			</tr>
+			<tr>
+				<th class="spec">0</th>
+				<td>%sd1%</td>
+				<td>%sd2%</td>
+				<td>%sd3%</td>
+				<td>%sd4%</td>
+			</tr>
+		</table>
+
+		<br /><br />
+        </div>
+        <div class="col-md-6 well">
+		<div class="tableTitle"><h3>Ancestor Concentration Index</h3></div>
+		<table id="meanCenter" class="statsTable table">
+			<tr>
+				<th class="nobg">Row Head / Column Head</th>
+				<th>SD 1st</th>
+				<th>SD 2nd</th>
+				<th>SD 3rd</th>
+				<th>Sd 4th</th>
+			</tr>
+			<tr>
+				<th class="spec">SD 1st Gen</th>
+				<td>1</td>
+				<td>-</td>
+				<td>-</td>
+				<td>-</td>
+			</tr>
+			<tr>
+				<th class="specalt">SD 2nd Gen</th>
+				<td class="alt">%aci12%</td>
+				<td class="alt">1</td>
+				<td class="alt">-</td>
+				<td class="alt">-</td>
+			</tr>
+			<tr>
+				<th class="spec">SD 3rd Gen</th>
+				<td>%aci13%</td>
+				<td>%aci23%</td>
+				<td>1</td>
+				<td>-</td>
+			</tr>
+			<tr>
+				<th class="specalt">SD 4th Gen</th>
+				<td class="alt">%aci14%</td>
+				<td class="alt">%aci24%</td>
+				<td class="alt">%aci34%</td>
+				<td class="alt">1</td>
+			</tr>
+		</table>
+		</div>
+        </div>
+		<br /><br />
+       <div class="row"><div class="col-md-12">
+		<div class="tableTitle"><h3>Community Stability Index</h3></div>
+		<table id="meanCenter" class="statsTable table">
+			<tr>
+				<th class="nobg">Equation</th>
+				<th>(# Parents &lt 25 mi)/(# Parents &gt 25 mi)</th>
+				<th>(# Grandparents &lt 25 mi)/(# Grandparents &gt 25 mi)</th>
+				<th>(# G Grandparents &lt 25 mi)/(# G Grandparents &gt 25 mi)</th>
+				<th>(# GG Grandparents &lt 25 mi)/(# GG Grandparents &gt 25 mi)</th>
+			</tr>
+			<tr>
+				<th class="spec">Value</th>
+				<td>%csiroot1%</td>
+				<td>%csiroot2%</td>
+				<td>%csiroot3%</td>
+				<td>%csiroot4%</td>
+			</tr>
+		</table>
+
+		<!-- Each of the following %chrroot#% sections is a lightbox that contains a map defined in data/v2/chr_root_map/r#.js
+			alter the .js file while processing dataTester.php for dynamic maps -->
+		<br /><br />
+        </div>
+        </div>
+          
+        <!--  Carousel maps -->
+        
+        
+		<div class="tableTitle"><h3>Community Heritage Ratios</h3></div>
+      <div id="myCarousel" class="carousel slide" data-ride="carousel">
+  <!-- Indicators -->
+  <div style="background-color:#666">
+  <ol class="carousel-indicators" >
+    <li data-target="#myCarousel" data-slide-to="0" class="active myCarousel"></li>
+    <li data-target="#myCarousel" data-slide-to="1" class="myCarousel"></li>
+    <li data-target="#myCarousel" data-slide-to="2" class="myCarousel"></li>
+    <li data-target="#myCarousel" data-slide-to="3" class="myCarousel"></li>
+  </ol>
+  </div>
+
+  <!-- Wrapper for slides -->
+  <div class="carousel-inner" role="listbox">
+    <div class="item active">
+      <div class="carouselMap">
+		<a href="#" onclick="return hs.htmlExpand(this, { width: '810' } )">Map</a>
+			<div class="highslide-maincontent">
+				<script type='text/javascript' src='http://www.google.com/jsapi'></script>
+				<script type='text/javascript' src='http://pintura.byu.edu/fmr/data/v2/chr_map_data/r1.js'></script>
+			<div id='map_canvas1'></div>
+		</div>
+	  </div>
+      <div class="carousel-caption">
+        <h3>Root to 1st</h3>
+        <p>%chrroot1%</p>
+      </div>
+    </div>
+
+    <div class="item">
+     <div class="carouselMap">
+						<a href="#" onclick="return hs.htmlExpand(this, { width: '810' } )">Map</a>
+						<div class="highslide-maincontent">
+							<script type='text/javascript' src='http://www.google.com/jsapi'></script>
+							<script type='text/javascript' src='http://pintura.byu.edu/fmr/data/v2/chr_map_data/r2.js'></script>
+							<div id='map_canvas2'></div>
+						</div>
+					</div>
+      <div class="carousel-caption">
+        <h3>Root to 2nd</h3>
+        
+      </div>
+    </div>
+    
+    <div class="item">
+      <div class="carouselMap">
+						<a href="#" onclick="return hs.htmlExpand(this, { width: '810' } )">Map</a>
+						<div class="highslide-maincontent">
+							<script type='text/javascript' src='http://www.google.com/jsapi'></script>
+							<script type='text/javascript' src='http://pintura.byu.edu/fmr/data/v2/chr_map_data/r3.js'></script>
+							<div id='map_canvas3'></div>
+						</div>
+					</div>
+      <div class="carousel-caption">
+        <h3>Root to 3rd</h3>
+       
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="carouselMap">
+						<a href="#" onclick="return hs.htmlExpand(this, { width: '810' } )">Map</a>
+						<div class="highslide-maincontent">
+							<script type='text/javascript' src='http://www.google.com/jsapi'></script>
+							<script type='text/javascript' src='http://pintura.byu.edu/fmr/data/v2/chr_map_data/r4.js'></script>
+							<div id='map_canvas4'></div>
+						</div>
+					</div>
+      <div class="carousel-caption">
+        <h3>Root to 4th</h3>
+       
+      </div>
+    </div>
+  </div>
+
+
+</div>
+
+        
+	
+		<br />
+		<div class="caption">
+			<a href="data/v2/chr_map_data/ISOCodes.html?a=193834923283943842923" onclick="return hs.htmlExpand(this, { objectType: 'iframe', width: '450' } )">* Click here for an ISO code reference sheet.</a>
+		</div>
+		
+		<br />
+		<br />
+        </div>
+	</body>
+</html>

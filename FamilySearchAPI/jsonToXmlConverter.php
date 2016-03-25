@@ -1,0 +1,335 @@
+<?php
+	require_once('getFSXMLResponse.php');
+	require_once('appState.php');
+	require_once('fmrFactory.php');
+
+	function convertToXml($json,$credentials,$mainURL,$direction)
+	{
+	//echo $direction;
+	//echo '<h1>json</h1>'.json_encode($json);
+	//Build Writer
+	$w=new XMLWriter();
+	$w->openMemory();
+	
+	//Person tag
+	$w->startElement("person");
+    $w->writeAttribute("id", $json["id"]);
+	
+		$w->startElement("assertions");
+			$w->startElement("names");
+				$w->startElement("name");
+					$w->startElement("value");
+						$w->writeAttribute("type","Name");
+							$w->startElement("forms");
+								$w->startElement("form");
+									$w->writeElement("fullText",$json["names"][0]["nameForms"][0]["fullText"]);
+								
+								$w->endElement();
+							$w->endElement();
+						$w->endElement();
+					$w->endElement();
+				$w->endElement();
+			
+		
+	
+			
+				$w->startElement("genders");
+					$w->startElement("gender");
+						if ($json["gender"]["type"]=="http://gedcomx.org/Male")
+						{
+							$w->writeElement("value","Male");
+						}
+						else
+						{
+							$w->writeElement("value","Female");
+						}
+					$w->endElement();
+				$w->endElement();
+				
+				$w->startElement("events");
+					//birth
+					//TODO Set christening to be birth
+					$i = 0;
+					$birthFound = false;
+					$deathFound = false;
+					foreach ($json["facts"] as $fact){
+						if ($fact["type"]=="http://gedcomx.org/Birth")
+						{
+							$birthFound = true;
+							writeEvent($w,"Birth",$i,$json,$credentials);
+						}
+						//Christening
+						else if ($fact["type"]=="http://gedcomx.org/Christening" and !$birthFound)
+						{
+							writeEvent($w,"Birth",$i,$json,$credentials);
+						}
+						//Death
+						else if ($fact["type"]=="http://gedcomx.org/Death")
+						{
+						    $deathFound = true;
+							writeEvent($w,"Death",$i,$json,$credentials);
+						}
+						//Burial
+						else if ($fact["type"]=="http://gedcomx.org/Burial" and !$deathFound)
+						{
+							writeEvent($w,"Death",$i,$json,$credentials);
+						}
+						
+						
+						$i++;
+					}
+					if (count($json["facts"])==1)
+					{
+							writeDummyEvent($w);
+					}
+					
+				$w->endElement();
+			$w->endElement();
+			//Get Parents data
+			if ($direction =='TRUE' or $direction=="Backward")//Backwards Search
+				{
+					loadParents($w,$credentials,$json,$mainURL);
+				}
+				else if ($direction =='FALSE' or $direction=="Forward")
+				{
+					loadChildren($w,$credentials,$json,$mainURL);
+				}
+				else
+				{
+				    echo "<h2>Direction undefined</h2>$direction";	
+				}
+				
+		$w->endElement();
+	$w->endElement();	
+	 return $w->outputMemory(true);
+	}
+	
+	/**
+	*
+	*
+	*/
+	function loadChildren($w,$credentials,$json,$mainURL)
+	{
+		$fsConnect = FmrFactory::createFsConnect();
+		//form url for parents request
+		//echo "<br>PersonResponse [".json_encode($json)."]<br>";
+		if (isset($json) && isset($json['id']))
+		{
+			$childrenLinkUrl = $mainURL."platform/tree/persons/".$json['id']."/children";
+			//$childrenLinkUrl = $json["links"]["children"]["href"];
+			//echo "<br>parentUrl [".$parentLinkUrl."]<br>";
+			//echo "<h1>Get Children</h1>".$childrenLinkUrl;
+			$childrenStructure = $fsConnect->getFSXMLResponse($credentials, $childrenLinkUrl);
+			
+			//echo "<br>parentResponse [".json_encode($parentStructure)."]<br>";
+			//echo "<br><br>";
+			//echo json_encode($childrenStructure);
+			//echo "<br><br>";
+			if (isset($childrenStructure))
+			{
+			$w->startElement("children");
+			foreach($childrenStructure["persons"] as $child)
+			{
+				$w->startElement("child");
+				
+				if ($child["gender"]["type"]=="http://gedcomx.org/Male")
+				{
+
+						$w->writeAttribute("gender","Male");
+						$w->writeAttribute("id",$child["id"]);
+				}		
+				else 			
+				{
+			
+				//mother
+		
+						$w->writeAttribute("gender","Female");
+						$w->writeAttribute("id",$child["id"]);
+				}
+					$w->endElement();	
+			}
+				$w->endElement();
+			}
+			else
+			{
+				appState::$treeEnd++;
+				
+			}
+		}
+	}
+	/**
+	*Pulls the information on the parents, gathers the parent's pids, then returns the formatted xml 
+	* portion dealling with parents.
+	* @param $w - xml writer instance 
+	* @param $credentials - saved information on the state of the program. holds information on Authorization Codes,
+	* main url, and so forth.
+	*
+	*/
+	function loadParents($w,$credentials,$json,$mainURL)
+	{
+		$fsConnect = FmrFactory::createFsConnect();
+		//form url for parents request
+		//echo "<br>PersonResponse [".json_encode($json)."]<br>";
+		if (isset($json) && isset($json['id']))
+		{
+			$parentLinkUrl = $mainURL."platform/tree/persons/".$json['id']."/parents";//$json["links"]["parents"]["href"];
+			//echo "<h1>parentUrl</h1> [".$parentLinkUrl."]";
+			$parentStructure = $fsConnect->getFSXMLResponse($credentials, $parentLinkUrl);
+			//echo "<h1>parentStructure</h1>".json_encode($parentStructure);
+			//echo "<br>parentResponse [".json_encode($parentStructure)."]<br>";
+			
+			if (isset($parentStructure))
+			{
+			$w->startElement("parents");
+				$w->startElement("couple");
+				//father 
+					$w->startElement("parent");
+					if (isset($parentStructure["childAndParentsRelationships"][0]["father"]))
+					{
+						$w->writeAttribute("gender","Male");
+						$w->writeAttribute("id",$parentStructure["childAndParentsRelationships"][0]["father"]["resourceId"]);
+						
+							
+						$w->endElement();
+					}
+			
+				//mother
+				if (isset($parentStructure["childAndParentsRelationships"][0]["mother"]))
+					{
+					$w->startElement("parent");
+						$w->writeAttribute("gender","Female");
+						$w->writeAttribute("id",$parentStructure["childAndParentsRelationships"][0]["mother"]["resourceId"]);
+						$w->endElement();
+					$w->endElement();
+				}
+					else
+					{
+							appState::$treeEnd++;
+					}
+				$w->endElement();
+			}
+		}
+	}
+	/**
+	* Writes life events to the xml structure
+	*
+	*/
+	function writeEvent($w,$type,$index,$json,$credentials){
+	$w->startElement("event");
+		$w->startElement("value");
+			$w->writeAttribute("type",$type);
+				$w->startElement("date");
+					if (isset($json["facts"][$index]["date"]["original"]))
+					{
+						$w->writeElement("original",$json["facts"][$index]["date"]["original"]);
+					}
+					//$w->endElement();
+					$w->writeElement("normalized",$json["facts"][$index]["date"]["normalized"][0]["value"]);
+					//$w->endElement();
+					
+					
+					$w->endElement();
+					//Birth place
+					$w->startElement("place");
+						if (isset($json["facts"][$index]["place"]))
+						{
+						$w->writeElement("original",$json["facts"][$index]["place"]["original"]);
+							$w->startElement("normalized");
+							$w->writeAttribute("id",getPlaceId($json["facts"][$index]["place"]["original"],$credentials));
+						}
+					$w->endElement();
+				//$w->endElement();
+					
+			$w->endElement();
+		$w->endElement();		
+	$w->endElement();
+	}
+	
+	function writeDummyEvent($w)
+	{
+		
+	$w->startElement("event");
+		$w->startElement("value");
+			$w->writeAttribute("type","dummy");
+				$w->startElement("date");
+
+				
+					
+				$w->endElement();
+		$w->endElement();		
+	$w->endElement();
+	}
+	
+	//pulls a useful id for the location
+	function getPlaceId($placeName,$credentials)
+	{
+		$fsConnect = FmrFactory::createFsConnect();
+		$placeName = str_replace ("'","",$placeName);
+		//$pastSearches = array;
+		$id = "";
+		if (array_key_exists($placeName,appState::$idMap))
+		{
+			//echo "<h2>Duplicate found</h2>";
+			$id = appState::$idMap[$placeName];
+			
+		}
+		else
+		{
+					//Store result in posgress table
+				$query = "SELECT placeName, pid FROM PlaceToId WHERE placeName='$placeName';";
+				$pgConnection = pg_connect('host=localhost port=5432 dbname=familysearch user=familysearch password=familysearch');
+				$result = pg_query($pgConnection, $query);
+				$row = pg_fetch_row($result);
+				if($row[1] != null && $row[1] != "")
+				{
+					//echo "Using local db<br />";
+					$id = $row[1];
+					//echo "<h1>$id pulled from $placeName</h1>";
+					appState::$idMap[$placeName]=$id;
+					
+					
+					
+					pg_close();
+				}
+				else
+				{
+			
+			
+				$path = urlencode($placeName);
+		
+					$url = $credentials["mainURL"]."platform/places/search?access_token=".$credentials["accessToken"]."&q=name:\"".$path."\"";
+						$response = $fsConnect->getFSXMLResponse($credentials,$url);
+					//echo "<h1>Get Location ID</h1>".json_encode($response);
+		
+		
+					$id = $response["entries"][0]["content"]["gedcomx"]["places"][0]["id"];
+					if ($id=="")
+					{
+						echo "Id not found";
+					}
+					else
+					{
+						appState::$idMap[$placeName] = $id;
+					
+						//Store result in posgress table
+						$query = "INSERT INTO PlaceToId (placeName, pid) VALUES('$placeName', $id);";
+				
+				
+						//$pgConnection = pg_connect('host=localhost port=5432 dbname=familysearch user=familysearch password=familysearch');
+						$result = pg_query($pgConnection, $query);
+						//echo "<h1>$id Inserted into $placeName</h1>";
+						pg_close();
+					}
+				}
+		
+		
+		
+	
+		
+		
+
+		}
+		return $id;
+	}
+	
+?>
