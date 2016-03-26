@@ -72,7 +72,7 @@ class FsConnect{
 			{
 				// Perform the query
 				//echo $url.$data;
-				$response = FSQuery($credentials, $url.$data);
+				$response = FSQuery($credentials, $url.rawurlencode($data));
 				
 			}while($response === FALSE);
 			// Check HTTP status code
