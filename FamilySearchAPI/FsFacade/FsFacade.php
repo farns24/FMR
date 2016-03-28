@@ -12,7 +12,80 @@ require_once('DynamicCache.php');
 					$this->fsConnect = FmrFactory::createFsConnect();
 					$this->cache = new DynamicCache();
 		}
+		
+		public function getId($name, $credentials)
+		{
+		
+			$fsConnect = FmrFactory::createFsConnect();
+		$placeName = str_replace ("'","",$placeName);
+		//$pastSearches = array;
+		$id = "";
+		if (array_key_exists($placeName,appState::$idMap))
+		{
+			//echo "<h2>Duplicate found</h2>";
+			$id = appState::$idMap[$placeName];
+			
+		}
+		else
+		{
+					//Store result in posgress table
+				$query = "SELECT placeName, pid FROM PlaceToId WHERE placeName='$placeName';";
+				$pgConnection = pg_connect('host=localhost port=5432 dbname=familysearch user=familysearch password=familysearch');
+				$result = pg_query($pgConnection, $query);
+				$row = pg_fetch_row($result);
+				if($row[1] != null && $row[1] != "")
+				{
+					//echo "Using local db<br />";
+					$id = $row[1];
+					//echo "<h1>$id pulled from $placeName</h1>";
+					appState::$idMap[$placeName]=$id;
+					
+					
+					
+					pg_close();
+				}
+				else
+				{
+			
+			
+				$path = urlencode($placeName);
+		
+					$url = $credentials["mainURL"]."platform/places/search?access_token=".$credentials["accessToken"]."&q=name:\"".$path."\"";
+						$response = $fsConnect->getFSXMLResponse($credentials,$url);
+					//echo "<h1>Get Location ID</h1>".json_encode($response);
+		
+		
+					$id = $response["entries"][0]["content"]["gedcomx"]["places"][0]["id"];
+					if ($id=="")
+					{
+						echo "Id not found";
+					}
+					else
+					{
+						appState::$idMap[$placeName] = $id;
+					
+						//Store result in posgress table
+						$query = "INSERT INTO PlaceToId (placeName, pid) VALUES('$placeName', $id);";
+				
+				
+						//$pgConnection = pg_connect('host=localhost port=5432 dbname=familysearch user=familysearch password=familysearch');
+						$result = pg_query($pgConnection, $query);
+						//echo "<h1>$id Inserted into $placeName</h1>";
+						pg_close();
+					}
+				}
+		
+		
+		
 	
+		
+		
+
+		}
+		
+		
+		
+		}	
 		public function getLocation($placeId)
 		{
 			$result = array();

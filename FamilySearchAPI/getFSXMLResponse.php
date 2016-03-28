@@ -51,7 +51,7 @@ class FsConnect{
 				}
 			}
 		}while($credentials["statusCode"] > 200 && $credentials["statusCode"] < 300);
-		echo "<div class = 'well'>$json</div>";
+		//echo "<div class = 'well'>$json</div>";
 		return $json;
 	}
 
@@ -92,7 +92,7 @@ class FsConnect{
 				}
 			}
 		}while($credentials["statusCode"] >= 200 &&$credentials["statusCode"]<300);
-		echo "<div class = 'well'>$response</div>";
+		//echo "<div class = 'well'>$response</div>";
 		return $response;
 	}
 }

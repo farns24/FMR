@@ -58,7 +58,7 @@ function FSQuery($credentials, $queryURL)
 
 	
 	
-	echo "<div class='well'> $queryURL</div>";
+	//echo "<div class='well'> $queryURL</div>";
 	$request = new HTTP_Request($queryURL);
 	//Authorization
 	$request->setMethod("GET");

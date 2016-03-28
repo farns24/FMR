@@ -27,11 +27,6 @@ class DynamicCache {
 		}
 	}
 	
-	public function loadFromDb()
-	{
-	
-
-	}
 }
 
 ?>

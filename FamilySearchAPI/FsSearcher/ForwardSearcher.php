@@ -17,7 +17,7 @@ class ForwardSearcher extends ISearcher {
 
 	public function solve(&$ancestors,$mainURL,$credentials,$person,&$fsConnect,$generation,&$maxGen,&$html) 
 	{
-	echo "<div class = 'well'>Solve</div>";
+	
 	
 	$person = (string)$personObj['id'];
 	$pullGen = 2;
@@ -26,11 +26,13 @@ class ForwardSearcher extends ISearcher {
 	
 					
 		$personPedigreeResponse =$fsConnect->getFSXMLResponse($credentials, $pedigreeURL);
-		//throw new MyException('checkpoint');
+	
 		// Set the query URL
-		echo 'Url<br>' + $pedigreeurl +'<Br>'+ json_encode($personPedigreeResponse) + '<br>';
+		//echo 'Url<br>' + $pedigreeurl +'<Br>'+ json_encode($personPedigreeResponse) + '<br>';
 		$queryURL = $mainURL.'platform/tree/person/';
-					
+		echo "<div class = 'well'>";
+		echo json_encode($personPedigreeResponse);
+		echo"</div>";			
 				
 		// To avoid duplicate person reads, insert each unique id into an array and then do a person read on each element of that array
 					
