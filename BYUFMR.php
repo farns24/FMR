@@ -450,7 +450,7 @@ _EndOfHTML4;
 					echo "<h2>Error thrown in search</h2>";
 				    continue;
 				}
-				throw new Exception("Break here");
+				//throw new Exception("Break here");
 			}
 			while ($counter<=$max);
 

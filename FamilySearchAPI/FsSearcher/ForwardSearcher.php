@@ -15,10 +15,10 @@ class ForwardSearcher extends ISearcher {
 *
 ****************************************************************************************************************************************************************************/
 
-	public function solve(&$ancestors,$mainURL,$credentials,$person,&$fsConnect,$generation,&$maxGen,&$html) 
+	public function solve(&$ancestors,$mainURL,$credentials,$personObj,&$fsConnect,$generation,&$maxGen,&$html) 
 	{
 	//throw new Exception("Break Here");
-	//var_dump(func_get_args());
+	//echo json_encode($person);
 	$person = (string)$personObj['id'];
 	$pullGen = 2;
 
@@ -30,9 +30,9 @@ class ForwardSearcher extends ISearcher {
 		// Set the query URL
 		//echo 'Url<br>' + $pedigreeurl +'<Br>'+ json_encode($personPedigreeResponse) + '<br>';
 		$queryURL = $mainURL.'platform/tree/person/';
-		echo "<div class = 'well'>";
-		echo json_encode($personPedigreeResponse);
-		echo"</div>";			
+		//echo "<div class = 'well'>";
+		//echo json_encode($personPedigreeResponse);
+		//echo"</div>";			
 				
 		// To avoid duplicate person reads, insert each unique id into an array and then do a person read on each element of that array
 					
@@ -41,7 +41,7 @@ class ForwardSearcher extends ISearcher {
 		$desc = $searchedPerson["display"]["descendancyNumber"];
 		
 		
-			$html.= showGenerationPic($searchedPerson, $generation,$maxGen);
+			$html.= $this->showGenerationPic($searchedPerson, $generation,$maxGen);
 			
 			if ($generation !=2 && substr_count($desc,".")==2)
 			{

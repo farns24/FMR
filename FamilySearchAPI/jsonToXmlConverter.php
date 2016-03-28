@@ -264,7 +264,7 @@
 	function getPlaceId($placeName,$credentials)
 	{
 		
-		return FmrFactory::getFacade().getId($placeName,$credentials);
+		return FmrFactory::getFacade()->getId($placeName,$credentials);
 	}
 	
 ?>
