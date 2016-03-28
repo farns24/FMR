@@ -50,7 +50,10 @@ require_once('DynamicCache.php');
 					echo "<div class = 'well'>";
 					echo json_encode($response);
 					echo "</div>";
-					$id = $response["entries"][0]["content"]["gedcomx"]["places"][0]["id"];
+					$props = $response["entries"][0]["content"]["gedcomx"]["places"][0];
+					$id = $props["id"];
+					$lat = $props["latitude"];
+					$lng = $props["longitude"];
 					if ($id=="")
 					{
 						echo "Id not found";
@@ -60,7 +63,7 @@ require_once('DynamicCache.php');
 						appState::$idMap[$placeName] = $id;
 					
 						//Store result in posgress table
-						//$this->dao->insertISOLocation($id, $placeName, $lat, $lng, $iso)
+						$this->dao->insertISOLocation($id, $placeName, $lat, $lng, "-999");
 					}
 				}
 

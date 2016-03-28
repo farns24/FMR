@@ -28,13 +28,7 @@ class ForwardSearcher extends ISearcher {
 		$personPedigreeResponse =$fsConnect->getFSXMLResponse($credentials, $pedigreeURL);
 	
 		// Set the query URL
-		//echo 'Url<br>' + $pedigreeurl +'<Br>'+ json_encode($personPedigreeResponse) + '<br>';
 		$queryURL = $mainURL.'platform/tree/person/';
-		//echo "<div class = 'well'>";
-		//echo json_encode($personPedigreeResponse);
-		//echo"</div>";			
-				
-		// To avoid duplicate person reads, insert each unique id into an array and then do a person read on each element of that array
 					
 		foreach($personPedigreeResponse['persons'] as $searchedPerson)
 		{	

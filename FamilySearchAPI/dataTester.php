@@ -177,13 +177,12 @@ function dataTester($fileName,$credentials)
 						$rootArray[] = $member;
 						if ($direction=="Backward")
 						{
-							//echo "<div class='well'>Back Connect</div>";
 							// Recursively set generations for the rest of the family
 							setParents($famArray[$famCount], $member, 1);
 						}
 						else
 						{
-						//echo "<div class='well'>Forward Connect</div>";
+						
 							setChildren($famArray[$famCount], $member, 1);
 						}
 					}
@@ -199,7 +198,7 @@ function dataTester($fileName,$credentials)
 					$gen = $member->getGen();
 
 					echo "<h2>Generation $gen</h2>";
-					var_dump($gen);
+					//var_dump($gen);
 					switch($gen)
 					{
 						case 0:
