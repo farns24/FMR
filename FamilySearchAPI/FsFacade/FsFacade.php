@@ -16,7 +16,7 @@ require_once('DynamicCache.php');
 		public function getId($placeName, $credentials)
 		{
 		
-			$fsConnect = FmrFactory::createFsConnect();
+		$fsConnect = FmrFactory::createFsConnect();
 		$placeName = str_replace ("'","",$placeName);
 		
 		$id = "";
@@ -47,9 +47,9 @@ require_once('DynamicCache.php');
 					$url = $credentials["mainURL"]."platform/places/search?access_token=".$credentials["accessToken"]."&q=name:\"".$path."\"";
 						$response = $fsConnect->getFSXMLResponse($credentials,$url);
 		
-					echo "<div class = 'well'>";
-					echo json_encode($response);
-					echo "</div>";
+					//echo "<div class = 'well'>";
+					//echo json_encode($response);
+					//echo "</div>";
 					$props = $response["entries"][0]["content"]["gedcomx"]["places"][0];
 					$id = $props["id"];
 					$lat = $props["latitude"];
@@ -66,7 +66,7 @@ require_once('DynamicCache.php');
 						$this->dao->insertISOLocation($id, $placeName, $lat, $lng, "-999");
 					}
 				}
-
+			return $id;
 		}
 		
 		
@@ -84,6 +84,7 @@ require_once('DynamicCache.php');
 					$result[0] = $cacheRow['lat'];					
 					$result[1] = $cacheRow['lon'];					
 					$result[2] = $cacheRow['iso'];
+					var_dump($result);
 					return $result;
 			}
 			else 
@@ -116,6 +117,7 @@ require_once('DynamicCache.php');
 					$this->cache->add($placeId,$result["iso"],$result["lat"],$result["lon"]);
 					
 				}
+				var_dump($result);
 				return $result;
 			}
 		}

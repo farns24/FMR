@@ -263,7 +263,6 @@
 	//pulls a useful id for the location
 	function getPlaceId($placeName,$credentials)
 	{
-		
 		return FmrFactory::getFacade()->getId($placeName,$credentials);
 	}
 	

@@ -58,8 +58,9 @@ function mapGen($arrayName, $fileName, $birthOrDeath)
 			}
 			$lat = $person->getDeathPlace()->Lat();
 			$lon = $person->getDeathPlace()->Lon();
+			
 		}
-		
+		//echo "$lat $lon";
 		
 		if(!empty($lat) && !empty($lon) && $lat != -999 && $lon != -999)
 		{

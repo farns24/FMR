@@ -42,11 +42,13 @@ class Place
 		switch ($type) {
 		
 			case 0:
+			echo "<div class = 'well'>Case 0</div>";
 				$this->NoPlace();
 			break;
 			
 			case 1:
 				
+				echo "<div class = 'well'>Case 1</div>";
 				$location = FmrFactory::getFacade()->getLocation($placeId);
 				
 				//echo "<div class = 'well'>";
@@ -60,6 +62,8 @@ class Place
 			break;
 			
 			case 2:
+				
+			echo "<div class = 'well'>Case 2</div>";
 				$this->lat = $placeLat;
 				$this->lon = $placeLon;
 				$this->iso = -999;

@@ -72,7 +72,7 @@ class FsConnect{
 			{
 				// Perform the query
 				//echo $url.$data;
-				$response = FSQuery($credentials, $url.rawurlencode($data));
+				$response = FSQuery($credentials, $url.$data);
 				
 			}while($response === FALSE);
 			// Check HTTP status code
@@ -92,7 +92,7 @@ class FsConnect{
 				}
 			}
 		}while($credentials["statusCode"] >= 200 &&$credentials["statusCode"]<300);
-		//echo "<div class = 'well'>$response</div>";
+		echo "<div class = 'well'>$response</div>";
 		return $response;
 	}
 }
