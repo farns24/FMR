@@ -29,7 +29,7 @@ require_once('DynamicCache.php');
 		else
 		{
 		
-			$row = $this->dao->$this->dao->fetchByName($name);
+			$row = $this->dao->fetchByName($name);
 					//Store result in posgress table
 				if($row[1] != null && $row[1] != "")
 				{

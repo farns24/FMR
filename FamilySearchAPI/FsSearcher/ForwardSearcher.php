@@ -46,7 +46,7 @@ class ForwardSearcher extends ISearcher {
 			if ($generation !=2 && substr_count($desc,".")==2)
 			{
 		
-				solve($ancestors,$mainURL,$credentials,$searchedPerson,$fsConnect,$generation+2,$maxGen,$html);
+				$this->solve($ancestors,$mainURL,$credentials,$searchedPerson,$fsConnect,$generation+2,$maxGen,$html);
 			}
 			
 			if (isset($searchedPerson) && isset($searchedPerson["id"]))
