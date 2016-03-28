@@ -20,6 +20,8 @@ require_once("dataTesterFiles/chr_calcUS.php");
 require_once("mapUtils.php");
 require_once("csiUtils.php");
 require_once("preCondition.php");
+require_once("FamilyBuilder\AncestorBuilder.php");
+require_once("FamilyBuilder\DecendenceBuilder.php");
 global $rootLatLonArray;
 
 /**
@@ -155,6 +157,18 @@ function dataTester($fileName,$credentials)
 			$fourthArrayFemale = array();
 			
 			$famCount = 0;
+			$famBuilder = null;
+						
+			if ($direction=="Backward")
+			{
+			// Recursively set generations for the rest of the family
+				$famBuilder = new AncestorBuilder();
+			}
+			else
+			{
+				$famBuilder = new DecendenceBuilder();
+			}
+			
 			//echo "<div class='well'>Sanity Check</div>";
 			foreach($xml->family as $fam)
 			{
@@ -175,16 +189,8 @@ function dataTester($fileName,$credentials)
 						// Set generation to ROOT
 						$member->setGen(0);
 						$rootArray[] = $member;
-						if ($direction=="Backward")
-						{
-							// Recursively set generations for the rest of the family
-							setParents($famArray[$famCount], $member, 1);
-						}
-						else
-						{
+						$famBuilder->connect($famArray[$famCount], $member, 1);
 						
-							setChildren($famArray[$famCount], $member, 1);
-						}
 					}
 					$personCount++;
 
@@ -197,8 +203,6 @@ function dataTester($fileName,$credentials)
 					// Switch on the generation of the member Person
 					$gen = $member->getGen();
 
-					echo "<h2>Generation $gen</h2>";
-					//var_dump($gen);
 					switch($gen)
 					{
 						case 0:
@@ -723,125 +727,6 @@ function dataTester($fileName,$credentials)
 	}
 }
 
-// Recursive function to set the generations of an entire family
-
-/**
-* Loop through the children of the member provided
-*
-*for each child of the target member
-*
-*Look up member in the family array
-*
-*if found, set the 
-*
-*/
-function setChildren(&$family, $member, $gen)
-{
-	//echo "<h1>Set Children Generation</h1>$gen";
-	// Check generation - cannot be over 4
-	if($gen > 4)
-	{
-		//echo "<div class='well'>$gen out of bounds</div>";
-		return;
-	}
-	// Check if father is in the $family array
-
-	//For each child of the member
-	if ($member->getChildArray()){
-		foreach($member->getChildArray() as $key => $child){
-			
-			//If the child listed is included in the family map
-			if( array_key_exists((string)$child->attributes()->id, $family->members ))
-			{
-				//Indicates that individual is not being added to family array.
-				//echo "<h1>Key exists</h1>";
-				// Set the Child of the $member if the child ID is DIFFERENT than the parent ID
-				if($family->getMember((string)$member->getId()) != $family->getMember($key))
-				{
-					$family->getMember($member->getId())->addChildModel($family->members[(string)$key]);
-					
-						//$tempMember = $family->members[(string)$key];
-						$family->getMember((string)$member->getId())->getChildModel((string)$key)->addChild();
-
-						
-						// Set the generation
-					$family->getMember((string)$member->getId())->getChildModel((string)$key)->setGen($gen);
-					//echo "<div class='well'>$gen +1</div>";
-					setChildren($family, $family->getMember((string)$member->getId())->getChildModel((string)$key), ($gen + 1));
-						
-
-				}
-				else
-				{
-					echo "the father member has the same id as the child id";
-				}
-			}
-		}
-	}
-	
-}
-
-// Recursive function to set the generations of an entire family
-function setParents(&$family, &$member, $gen)
-{
-	// Check generation - cannot be over 4
-	if($gen > 4)
-	{
-		return;
-		//echo "<div class='well'>Gen too big</div>";
-	}
-	// Check if father is in the $family array
-	
-	if(array_key_exists((string)$member->getFatherString(), $family->members ))
-	{
-		// Set the father of the $member if the father ID is DIFFERENT than the child ID
-		if($family->getMember($member->getId()) != $family->getMember($member->getFatherString()))
-		{
-			$family->getMember($member->getId())->setFather($family->members[(string)$member->getFatherString()]);
-		
-			
-			$family->members[(string)$member->getFatherString()]->addChild();
-			
-			// Set the generation
-			$family->getMember($member->getId())->getFather()->setGen($gen);
-			
-			// Call setParents to set the next generation
-			//echo "<div class='well'>$gen +1</div>";
-			setParents($family, $family->getMember($member->getId())->getFather(), ($gen + 1));
-		}
-
-	}
-	else
-	{
-		//echo "<div class='well'>No Father Found</div>";
-	}
-
-	
-	// Check if mother is in the family array
-	if(array_key_exists((string)$member->getMotherString(), $family->members ))
-	{
-		// Set the father of the $member
-		if($family->getMember($member->getId()) != $family->getMember($member->getMotherString()))
-		{
-			$family->getMember($member->getId())->setMother($family->members[(string)$member->getMotherString()]);
-			$family->members[(string)$member->getMotherString()]->addChild();
-			//echo $family->getMember($member->getId())->getMother()->getId();
-			
-			// Set the generation
-			$family->getMember($member->getId())->getMother()->setGen($gen);
-			//echo " Mother ".$family->getMember($member->getId())->getMother()->getGen()."<br />";
-			
-			// Call setParents to set the next generation
-			//echo "<div class='well'>$gen +1</div>";
-			setParents($family, $family->getMember($member->getId())->getMother(), ($gen + 1));
-		}
-	}
-	else
-	{
-		//echo "<div class='well'>No Mother Found</div>";
-	}
-
-}
 
 // Function to help set the distances between generations
 // $currentGen should always be set as 1 in the function call
