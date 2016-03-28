@@ -58,7 +58,7 @@ function FSQuery($credentials, $queryURL)
 
 	
 	
-	//echo "<script> console.log(".$queryURL."&access_token=".$credentials['accessToken'].");</script>";
+	echo "<div class='well'> $queryURL</div>";
 	$request = new HTTP_Request($queryURL);
 	//Authorization
 	$request->setMethod("GET");
