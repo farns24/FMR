@@ -13,12 +13,12 @@ require_once('DynamicCache.php');
 					$this->cache = new DynamicCache();
 		}
 		
-		public function getId($name, $credentials)
+		public function getId($placeName, $credentials)
 		{
 		
 			$fsConnect = FmrFactory::createFsConnect();
 		$placeName = str_replace ("'","",$placeName);
-		//$pastSearches = array;
+		
 		$id = "";
 		if (array_key_exists($placeName,appState::$idMap))
 		{
@@ -28,21 +28,15 @@ require_once('DynamicCache.php');
 		}
 		else
 		{
+		
+			$row = $this->dao->fetchByName($name);
 					//Store result in posgress table
-				$query = "SELECT placeName, pid FROM PlaceToId WHERE placeName='$placeName';";
-				$pgConnection = pg_connect('host=localhost port=5432 dbname=familysearch user=familysearch password=familysearch');
-				$result = pg_query($pgConnection, $query);
-				$row = pg_fetch_row($result);
 				if($row[1] != null && $row[1] != "")
 				{
 					//echo "Using local db<br />";
 					$id = $row[1];
 					//echo "<h1>$id pulled from $placeName</h1>";
 					appState::$idMap[$placeName]=$id;
-					
-					
-					
-					pg_close();
 				}
 				else
 				{

@@ -60,6 +60,19 @@ class DAO {
 		pg_close();
 		
 	}
+	
+	public function fetchByName($placeName)
+	{
+		$query = "SELECT placeName, pid FROM PlaceToId WHERE placeName='$placeName';";
+		$result = runCommand($query);
+		$row = pg_fetch_row($result);
+				
+					
+					
+					
+		pg_close();
+		return $row;
+	}
 
 	public function fetchFromDb($placeId)
 	{
