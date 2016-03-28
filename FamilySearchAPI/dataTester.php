@@ -22,6 +22,9 @@ require_once("csiUtils.php");
 require_once("preCondition.php");
 require_once("FamilyBuilder\AncestorBuilder.php");
 require_once("FamilyBuilder\DecendenceBuilder.php");
+require_once("dataTesterFiles\GenerationResultsFinder.php");
+
+
 global $rootLatLonArray;
 
 /**
@@ -290,8 +293,15 @@ function dataTester($fileName,$credentials)
 			
 			// Total number of people
 			$numPeople = getTotalPeopleCount($famArray);	
-			$htmlOut = str_replace("%numPeople%", $numPeople, $htmlOut);		
-			$gen1know = getGenCount($firstArray);
+			$htmlOut = str_replace("%numPeople%", $numPeople, $htmlOut);	
+			
+			new Gen1ResultsFinder()->run($analysisFileOutput,$firstArray,$htmlOut);
+			new Gen2ResultsFinder()->run($analysisFileOutput,$secondArray,$htmlOut);
+			new Gen3ResultsFinder()->run($analysisFileOutput,$thirdArray,$htmlOut);
+			new Gen4ResultsFinder()->run($analysisFileOutput,$fourthArray,$htmlOut);
+			
+			
+			/*$gen1know = getGenCount($firstArray);
 			
 			// Number of people, 1st gen
 			$numPeople1 = count($firstArray);
@@ -301,8 +311,9 @@ function dataTester($fileName,$credentials)
 			$htmlOut = str_replace("%1Genknow%", $gen1know, $htmlOut);
 			($gen1know != 0)? $analysisFileOutput .= $gen1know.":" : $analysisFileOutput .= "N/A:";
 			$htmlOut = str_replace("%1Genuniq%", $numPeople1, $htmlOut);
-			($numPeople1 != 0)? $analysisFileOutput .= $numPeople1.":" : $analysisFileOutput .= "N/A:";
+			($numPeople1 != 0)? $analysisFileOutput .= $numPeople1.":" : $analysisFileOutput .= "N/A:";*/
 
+			/*
 			$gen2know = getGenCount($secondArray);
 			
 			// Number of people, 2nd gen
@@ -313,8 +324,8 @@ function dataTester($fileName,$credentials)
 			($gen2know != 0)? $analysisFileOutput .= $gen2know.":" : $analysisFileOutput .= "N/A:";
 			$htmlOut = str_replace("%2Genuniq%", $numPeople2, $htmlOut);
 			($numPeople2 != 0)? $analysisFileOutput .= $numPeople2.":" : $analysisFileOutput .= "N/A:";
-
-			$gen3know = getGenCount($thirdArray);
+			*/
+			/*$gen3know = getGenCount($thirdArray);
 			
 			// Number of people, 3rd gen
 			$numPeople3 = count($thirdArray);
@@ -324,8 +335,8 @@ function dataTester($fileName,$credentials)
 			($gen3know != 0)? $analysisFileOutput .= $gen3know.":" : $analysisFileOutput .= "N/A:";
 			$htmlOut = str_replace("%3Genuniq%", $numPeople3, $htmlOut);
 			($numPeople3 != 0)? $analysisFileOutput .= $numPeople3.":" : $analysisFileOutput .= "N/A:";
-			
-			$gen4know = getGenCount($fourthArray);
+			*/
+			/*$gen4know = getGenCount($fourthArray);
 
 			// Number of people, 4th gen
 			$numPeople4 = count($fourthArray);
@@ -335,7 +346,7 @@ function dataTester($fileName,$credentials)
 			($gen4know != 0)? $analysisFileOutput .= $gen4know.":" : $analysisFileOutput .= "N/A:";
 			$htmlOut = str_replace("%4Genuniq%", $numPeople4, $htmlOut);
 			($numPeople4 != 0)? $analysisFileOutput .= $numPeople4.":" : $analysisFileOutput .= "N/A:";
-			
+			*/
 			// Start Mean Distance of migration matrix
 			// Mdist, root - 1 (Parents)
 			$mdroot1 = findMeanDistance($rootArray, 1);
