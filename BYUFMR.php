@@ -450,6 +450,7 @@ _EndOfHTML4;
 					echo "<h2>Error thrown in search</h2>";
 				    continue;
 				}
+				throw new Exception("Break here");
 			}
 			while ($counter<=$max);
 
@@ -722,7 +723,7 @@ function getXMLOfAncestors($person,$personFromPlaceIndex,$direction,$credentials
 				$placesMap = array();
 				
 				$ancestors = array();
-				
+				$generation = 0;
 				$searcher->solve($ancestors,$mainURL,$credentials,$person,$fsConnect,$generation,$maxGen,$html);
 				
 				$html.="</div>";

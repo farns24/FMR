@@ -29,7 +29,7 @@ require_once('DynamicCache.php');
 		else
 		{
 		
-			$row = $this->dao->fetchByName($name);
+			$row = $this->dao->$this->dao->fetchByName($name);
 					//Store result in posgress table
 				if($row[1] != null && $row[1] != "")
 				{
@@ -46,9 +46,10 @@ require_once('DynamicCache.php');
 		
 					$url = $credentials["mainURL"]."platform/places/search?access_token=".$credentials["accessToken"]."&q=name:\"".$path."\"";
 						$response = $fsConnect->getFSXMLResponse($credentials,$url);
-					//echo "<h1>Get Location ID</h1>".json_encode($response);
 		
-		
+					echo "<div class = 'well'>";
+					echo json_encode($response);
+					echo "</div>";
 					$id = $response["entries"][0]["content"]["gedcomx"]["places"][0]["id"];
 					if ($id=="")
 					{
@@ -59,21 +60,9 @@ require_once('DynamicCache.php');
 						appState::$idMap[$placeName] = $id;
 					
 						//Store result in posgress table
-						$query = "INSERT INTO PlaceToId (placeName, pid) VALUES('$placeName', $id);";
-				
-				
-						//$pgConnection = pg_connect('host=localhost port=5432 dbname=familysearch user=familysearch password=familysearch');
-						$result = pg_query($pgConnection, $query);
-						//echo "<h1>$id Inserted into $placeName</h1>";
-						pg_close();
+						//$this->dao->insertISOLocation($id, $placeName, $lat, $lng, $iso)
 					}
 				}
-		
-		
-		
-	
-		
-		
 
 		}
 		

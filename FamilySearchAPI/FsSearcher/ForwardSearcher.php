@@ -17,8 +17,8 @@ class ForwardSearcher extends ISearcher {
 
 	public function solve(&$ancestors,$mainURL,$credentials,$person,&$fsConnect,$generation,&$maxGen,&$html) 
 	{
-	
-	
+	//throw new Exception("Break Here");
+	//var_dump(func_get_args());
 	$person = (string)$personObj['id'];
 	$pullGen = 2;
 
@@ -54,6 +54,7 @@ class ForwardSearcher extends ISearcher {
 				$ancestors[$searchedPerson["id"]] = $searchedPerson;
 			}
 		}
+		//throw new Exception("Break Here");
 		return;
 					
 }
