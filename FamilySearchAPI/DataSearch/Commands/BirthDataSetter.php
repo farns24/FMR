@@ -2,9 +2,17 @@
 
 	class BirthDataSetter {
 	
-	public function setDate(&$person,&$date)
+	public function setDate($person,$date)
+	{
 	
-	function setPlace()
+	
+	}
+	
+	function setPlace($person,$date)
+	{
+	
+
+	}
 
 	}
 ?>

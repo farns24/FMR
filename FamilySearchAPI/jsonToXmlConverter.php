@@ -175,8 +175,6 @@
 			$parentLinkUrl = $mainURL."platform/tree/persons/".$json['id']."/parents";//$json["links"]["parents"]["href"];
 			//echo "<h1>parentUrl</h1> [".$parentLinkUrl."]";
 			$parentStructure = $fsConnect->getFSXMLResponse($credentials, $parentLinkUrl);
-			//echo "<h1>parentStructure</h1>".json_encode($parentStructure);
-			//echo "<br>parentResponse [".json_encode($parentStructure)."]<br>";
 			
 			if (isset($parentStructure))
 			{

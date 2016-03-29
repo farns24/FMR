@@ -22,6 +22,8 @@ require_once("csiUtils.php");
 require_once("preCondition.php");
 require_once("FamilyBuilder\AncestorBuilder.php");
 require_once("FamilyBuilder\DecendenceBuilder.php");
+require_once("DataSearch\Model\StatsList.php");
+
 global $rootLatLonArray;
 
 /**
@@ -140,21 +142,11 @@ function dataTester($fileName,$credentials)
 			//******************************************************************************//
 			
 			// Initialize 5 generation arrays - one for each generation //
-			$rootArray = array();
-			$rootArrayMale = array();
-			$rootArrayFemale = array();
-			$firstArray = array();
-			$firstArrayMale = array();
-			$firstArrayFemale = array();
-			$secondArray = array();
-			$secondArrayMale = array();
-			$secondArrayFemale = array();
-			$thirdArray = array();
-			$thirdArrayMale = array();
-			$thirdArrayFemale = array();
-			$fourthArray = array();
-			$fourthArrayMale = array();
-			$fourthArrayFemale = array();
+			$rootList = new StatsList();
+			$firstList = new StatsList();
+			$secondList = new StatsList();
+			$thirdList = new StatsList();
+			$fourthList = new StatsList();
 			
 			$famCount = 0;
 			$famBuilder = null;
@@ -169,26 +161,22 @@ function dataTester($fileName,$credentials)
 				$famBuilder = new DecendenceBuilder();
 			}
 			
-			//echo "<div class='well'>Sanity Check</div>";
 			foreach($xml->family as $fam)
 			{
-				//echo "<div class='well'>Family</div>";
 				// Iterate through the people in each family - from the XML, not the family array
 				$personCount = 1;
 				 
 				foreach($fam->person as $person)
 				{
-					//echo "<div class='well'>Family person</div>";
 					// Set the person to be used in this loop (Calling classFamily::getMember();)
 					$member = $famArray[$famCount]->getMember((string)$person['id']);
 		
 					// If the person is the first in the list, they are by default the ROOT generation
 					if($personCount == 1)
 					{
-						//echo "<div class='well'>Root Person analized</div>";
 						// Set generation to ROOT
 						$member->setGen(0);
-						$rootArray[] = $member;
+						$rootList->insert($member);
 						$famBuilder->connect($famArray[$famCount], $member, 1);
 						
 					}
@@ -210,51 +198,28 @@ function dataTester($fileName,$credentials)
 							$member->setDistTo(2,distAncestors($member, $member, 0, 2,$direction));
 							$member->setDistTo(3,distAncestors($member, $member, 0, 3,$direction));
 							$member->setDistTo(4,distAncestors($member, $member, 0, 4,$direction));
-
-							if(strtolower($member->getGender()) == "male")
-								$rootArrayMale[] = $member;
-							if(strtolower($member->getgender()) == "female")
-								$rootArrayFemale[] = $member;
 							break;
 						case 1:
 							$member->setDistTo(1,distAncestors($member, $member, 0, 1,$direction));
 							$member->setDistTo(2,distAncestors($member, $member, 0, 2,$direction));
 							$member->setDistTo(3,distAncestors($member, $member, 0, 3,$direction));
 							
-							
-							$firstArray[] = $member;
-
-							if(strtolower($member->getGender()) == "male")
-								$firstArrayMale[] = $member;
-							if(strtolower($member->getgender()) == "female")
-								$firstArrayFemale[] = $member;
+							$firstList->insert($member);
 							break;
 						case 2:
 							$member->setDistTo(1,distAncestors($member, $member, 0, 1,$direction));
 							$member->setDistTo(2,distAncestors($member, $member, 0, 2,$direction));
-							$secondArray[] = $member;
-							//echo json_encode($secondArray);
-							if(strtolower($member->getGender()) == "male")
-								$secondArrayMale[] = $member;
-							if(strtolower($member->getgender()) == "female")
-								$secondArrayFemale[] = $member;
+							
+							$secondList->insert($member);
 							break;
 						case 3:
 							$member->setDistTo(1,distAncestors($member, $member, 0, 1,$direction));
-							$thirdArray[] = $member;
-							//echo json_encode($thirdArray);
-							if(strtolower($member->getGender()) == "male")
-								$thirdArrayMale[] = $member;
-							if(strtolower($member->getgender()) == "female")
-								$thirdArrayFemale[] = $member;
+							
+							$thirdList->insert($member);
 							break;
 						case 4:
-							$fourthArray[] = $member;
-							//echo json_encode($fourthArray);
-							if(strtolower($member->getGender()) == "male")
-								$fourthArrayMale[] = $member;
-							if(strtolower($member->getgender()) == "female")
-								$fourthArrayFemale[] = $member;
+						
+							$fourthList->insert($member);
 							break;
 						default:
 							echo "Person not included in a generation array!";
@@ -267,7 +232,7 @@ function dataTester($fileName,$credentials)
 				$famCount++;
 			}
 
-			storeGenerationData($rootArray,$firstArray,$secondArray,$thirdArray,$fourthArray);
+			storeGenerationData($rootList->getTotal(),$firstList->getTotal(),$secondList->getTotal(),$thirdList->getTotal(),$fourthList->getTotal());
 			//******************************************************************************//
 			// Second pass is completed.											//
 			// Statistical analysis of the generations can be performed.						//
@@ -291,11 +256,11 @@ function dataTester($fileName,$credentials)
 			// Total number of people
 			$numPeople = getTotalPeopleCount($famArray);	
 			$htmlOut = str_replace("%numPeople%", $numPeople, $htmlOut);		
-			$gen1know = getGenCount($firstArray);
+			$gen1know = getGenCount($firstList->getTotal());
 			
 			// Number of people, 1st gen
-			$numPeople1 = count($firstArray);
-			echo "<br>Number of people in first generation ".count($firstArray);
+			$numPeople1 = count($firstList->getTotal());
+			echo "<br>Number of people in first generation ".count($firstList->getTotal());
 			$htmlOut = str_replace("%1Genposs%", ($numFamilies*2), $htmlOut);
 			(($numFamilies*2) != 0)? $analysisFileOutput .= ($numFamilies*2).":" : $analysisFileOutput .= "N/A:";
 			$htmlOut = str_replace("%1Genknow%", $gen1know, $htmlOut);
@@ -303,10 +268,10 @@ function dataTester($fileName,$credentials)
 			$htmlOut = str_replace("%1Genuniq%", $numPeople1, $htmlOut);
 			($numPeople1 != 0)? $analysisFileOutput .= $numPeople1.":" : $analysisFileOutput .= "N/A:";
 
-			$gen2know = getGenCount($secondArray);
+			$gen2know = getGenCount($secondList->getTotal());
 			
 			// Number of people, 2nd gen
-			$numPeople2 = count($secondArray);
+			$numPeople2 = count($secondList->getTotal());
 			$htmlOut = str_replace("%2Genposs%", ($numFamilies*4), $htmlOut);
 			(($numFamilies*4) != 0)? $analysisFileOutput .= ($numFamilies*4).":" : $analysisFileOutput .= "N/A:";
 			$htmlOut = str_replace("%2Genknow%", $gen2know, $htmlOut);
@@ -314,10 +279,10 @@ function dataTester($fileName,$credentials)
 			$htmlOut = str_replace("%2Genuniq%", $numPeople2, $htmlOut);
 			($numPeople2 != 0)? $analysisFileOutput .= $numPeople2.":" : $analysisFileOutput .= "N/A:";
 
-			$gen3know = getGenCount($thirdArray);
+			$gen3know = getGenCount($thirdList->getTotal());
 			
 			// Number of people, 3rd gen
-			$numPeople3 = count($thirdArray);
+			$numPeople3 = count($thirdList->getTotal());
 			$htmlOut = str_replace("%3Genposs%", ($numFamilies*8), $htmlOut);
 			(($numFamilies*8) != 0)? $analysisFileOutput .= ($numFamilies*8).":" : $analysisFileOutput .= "N/A:";
 			$htmlOut = str_replace("%3Genknow%", $gen3know, $htmlOut);
@@ -325,10 +290,10 @@ function dataTester($fileName,$credentials)
 			$htmlOut = str_replace("%3Genuniq%", $numPeople3, $htmlOut);
 			($numPeople3 != 0)? $analysisFileOutput .= $numPeople3.":" : $analysisFileOutput .= "N/A:";
 			
-			$gen4know = getGenCount($fourthArray);
+			$gen4know = getGenCount($fourthList->getTotal());
 
 			// Number of people, 4th gen
-			$numPeople4 = count($fourthArray);
+			$numPeople4 = count($fourthList->getTotal());
 			$htmlOut = str_replace("%4Genposs%", ($numFamilies*16), $htmlOut);
 			(($numFamilies*16) != 0)? $analysisFileOutput .= ($numFamilies*16).":" : $analysisFileOutput .= "N/A:";
 			$htmlOut = str_replace("%4Genknow%", $gen4know, $htmlOut);
@@ -338,154 +303,154 @@ function dataTester($fileName,$credentials)
 			
 			// Start Mean Distance of migration matrix
 			// Mdist, root - 1 (Parents)
-			$mdroot1 = findMeanDistance($rootArray, 1);
+			$mdroot1 = findMeanDistance($rootList->getTotal(), 1);
 			$htmlOut = str_replace("%mdDistRoot1%", $mdroot1, $htmlOut);
 			$analysisFileOutput .= $mdroot1.":";
 			
 			// Mdist, root - 2 (GParents)
-			$mdroot2 = findMeanDistance($rootArray, 2);
+			$mdroot2 = findMeanDistance($rootList->getTotal(), 2);
 			$htmlOut = str_replace("%mdDistRoot2%", $mdroot2, $htmlOut);
 			$analysisFileOutput .= $mdroot2.":";
 			
 			// Mdist, root - 3 (GGParents)
-			$mdroot3 = findMeanDistance($rootArray, 3);
+			$mdroot3 = findMeanDistance($rootList->getTotal(), 3);
 			$htmlOut = str_replace("%mdDistRoot3%", $mdroot3, $htmlOut);
 			$analysisFileOutput .= $mdroot3.":";
 			
 			// Mdist, root - 4 (GGGParents)
-			$mdroot4 = findMeanDistance($rootArray, 4);
+			$mdroot4 = findMeanDistance($rootList->getTotal(), 4);
 			$htmlOut = str_replace("%mdDistRoot4%", $mdroot4, $htmlOut);
 			$analysisFileOutput .= $mdroot4.":";
 			
 			// Mdist, first - 1 (Parents)
-			$md12 = findMeanDistance($firstArray, 1);
+			$md12 = findMeanDistance($firstList->getTotal(), 1);
 			$htmlOut = str_replace("%mdDist12%", $md12, $htmlOut);
 			$analysisFileOutput .= $md12.":";
 			
 			// Mdist, first - 2  (GParents)
-			$md13 = findMeanDistance($firstArray, 2);
+			$md13 = findMeanDistance($firstList->getTotal(), 2);
 			$htmlOut = str_replace("%mdDist13%", $md13, $htmlOut);
 			$analysisFileOutput .= $md13.":";
 			
 			// Mdist, first - 3 (GGParents)
-			$md14 = findMeanDistance($firstArray, 3);
+			$md14 = findMeanDistance($firstList->getTotal(), 3);
 			$htmlOut = str_replace("%mdDist14%", $md14, $htmlOut);
 			$analysisFileOutput .= $md14.":";
 
 			// Mdist, second - 1 (Parents)
-			$md23 = findMeanDistance($secondArray, 1);
+			$md23 = findMeanDistance($secondList->getTotal(), 1);
 			$htmlOut = str_replace("%mdDist23%", $md23, $htmlOut);
 			$analysisFileOutput .= $md23.":";
 			
 			// Mdist, Second - 2 (GParents)
-			$md24 = findMeanDistance($secondArray, 2);
+			$md24 = findMeanDistance($secondList->getTotal(), 2);
 			$htmlOut = str_replace("%mdDist24%", $md24, $htmlOut);
 			$analysisFileOutput .= $md24.":";
 		
 			// Mdist, Third - 1 (Parents)
-			$md34 = findMeanDistance($thirdArray, 1);
+			$md34 = findMeanDistance($thirdList->getTotal(), 1);
 			$htmlOut = str_replace("%mdDist34%", $md34, $htmlOut);
 			$analysisFileOutput .= $md34.":";
 
 			// Males Only
 			// Mdist, root - 1 (Parents)
-			$mdroot1m = findMeanDistance($rootArrayMale, 1);
+			$mdroot1m = findMeanDistance($rootList->getMales(), 1);
 			$htmlOut = str_replace("%mdDistRoot1m%", $mdroot1m, $htmlOut);
 			$analysisFileOutput .= $mdroot1m.":";
 			
 			// Mdist, root - 2 (GParents)
-			$mdroot2m = findMeanDistance($rootArrayMale, 2);
+			$mdroot2m = findMeanDistance($rootList->getMales(), 2);
 			$htmlOut = str_replace("%mdDistRoot2m%", $mdroot2m, $htmlOut);
 			$analysisFileOutput .= $mdroot2m.":";
 			
 			// Mdist, root - 3 (GGParents)
-			$mdroot3m = findMeanDistance($rootArrayMale, 3);
+			$mdroot3m = findMeanDistance($rootList->getMales(), 3);
 			$htmlOut = str_replace("%mdDistRoot3m%", $mdroot3m, $htmlOut);
 			$analysisFileOutput .= $mdroot3m.":";
 			
 			// Mdist, root - 4 (GGGParents)
-			$mdroot4m = findMeanDistance($rootArrayMale, 4);
+			$mdroot4m = findMeanDistance($rootList->getMales(), 4);
 			$htmlOut = str_replace("%mdDistRoot4m%", $mdroot4m, $htmlOut);
 			$analysisFileOutput .= $mdroot4m.":";
 			
 			// Mdist, first - 1 (Parents)
-			$md12m = findMeanDistance($firstArrayMale, 1);
+			$md12m = findMeanDistance($firstList->getMales(), 1);
 			$htmlOut = str_replace("%mdDist12m%", $md12m, $htmlOut);
 			$analysisFileOutput .= $md12m.":";
 			
 			// Mdist, first - 2  (GParents)
-			$md13m = findMeanDistance($firstArrayMale, 2);
+			$md13m = findMeanDistance($firstList->getMales(), 2);
 			$htmlOut = str_replace("%mdDist13m%", $md13m, $htmlOut);
 			$analysisFileOutput .= $md13m.":";
 			
 			// Mdist, first - 3 (GGParents)
-			$md14m = findMeanDistance($firstArrayMale, 3);
+			$md14m = findMeanDistance($firstList->getMales(), 3);
 			$htmlOut = str_replace("%mdDist14m%", $md14m, $htmlOut);
 			$analysisFileOutput .= $md14m.":";
 
 			// Mdist, second - 1 (Parents)
-			$md23m = findMeanDistance($secondArrayMale, 1);
+			$md23m = findMeanDistance($secondList->getMales(), 1);
 			$htmlOut = str_replace("%mdDist23m%", $md23m, $htmlOut);
 			$analysisFileOutput .= $md23m.":";
 			
 			// Mdist, Second - 2 (GParents)
-			$md24m = findMeanDistance($secondArrayMale, 2);
+			$md24m = findMeanDistance($secondList->getMales(), 2);
 			$htmlOut = str_replace("%mdDist24m%", $md24m, $htmlOut);
 			$analysisFileOutput .= $md24m.":";
 			
 			// Mdist, Third - 1 (Parents)
-			$md34m = findMeanDistance($thirdArrayMale, 1);
+			$md34m = findMeanDistance($thirdList->getMales(), 1);
 			$htmlOut = str_replace("%mdDist34m%", $md34m, $htmlOut);
 			$analysisFileOutput .= $md34m.":";
 
 			// Females Only
 			// Mdist, root - 1 (Parents)
-			$mdroot1f = findMeanDistance($rootArrayFemale, 1);
+			$mdroot1f = findMeanDistance($rootList->getFemales(), 1);
 			$htmlOut = str_replace("%mdDistRoot1f%", $mdroot1f, $htmlOut);
 			$analysisFileOutput .= $mdroot1f.":";
 			
 			// Mdist, root - 2 (GParents)
-			$mdroot2f = findMeanDistance($rootArrayFemale, 2);
+			$mdroot2f = findMeanDistance($rootList->getFemales(), 2);
 			$htmlOut = str_replace("%mdDistRoot2f%", $mdroot2f, $htmlOut);
 			$analysisFileOutput .= $mdroot2f.":";
 			
 			// Mdist, root - 3 (GGParents)
-			$mdroot3f = findMeanDistance($rootArrayFemale, 3);
+			$mdroot3f = findMeanDistance($rootList->getFemales(), 3);
 			$htmlOut = str_replace("%mdDistRoot3f%", $mdroot3f, $htmlOut);
 			$analysisFileOutput .= $mdroot3f.":";
 			
 			// Mdist, root - 4 (GGGParents)
-			$mdroot4f = findMeanDistance($rootArrayFemale, 4);
+			$mdroot4f = findMeanDistance($rootList->getFemales(), 4);
 			$htmlOut = str_replace("%mdDistRoot4f%", $mdroot4f, $htmlOut);
 			$analysisFileOutput .= $mdroot4f.":";
 			
 			// Mdist, first - 1 (Parents)
-			$md12f = findMeanDistance($firstArrayFemale, 1);
+			$md12f = findMeanDistance($firstList->getFemales(), 1);
 			$htmlOut = str_replace("%mdDist12f%", $md12f, $htmlOut);
 			$analysisFileOutput .= $md12f.":";
 			
 			// Mdist, first - 2  (GParents)
-			$md13f = findMeanDistance($firstArrayFemale, 2);
+			$md13f = findMeanDistance($firstList->getFemales(), 2);
 			$htmlOut = str_replace("%mdDist13f%", $md13f, $htmlOut);
 			$analysisFileOutput .= $md13f.":";
 			
 			// Mdist, first - 3 (GGParents)
-			$md14f = findMeanDistance($firstArrayFemale, 3);
+			$md14f = findMeanDistance($firstList->getFemales(), 3);
 			$htmlOut = str_replace("%mdDist14f%", $md14f, $htmlOut);
 			$analysisFileOutput .= $md14f.":";
 
 			// Mdist, second - 1 (Parents)
-			$md23f = findMeanDistance($secondArrayFemale, 1);
+			$md23f = findMeanDistance($secondList->getFemales(), 1);
 			$htmlOut = str_replace("%mdDist23f%", $md23f, $htmlOut);
 			$analysisFileOutput .= $md23f.":";
 			
 			// Mdist, Second - 2 (GParents)
-			$md24f = findMeanDistance($secondArrayFemale, 2);
+			$md24f = findMeanDistance($secondList->getFemales(), 2);
 			$htmlOut = str_replace("%mdDist24f%", $md24f, $htmlOut);
 			$analysisFileOutput .= $md24f.":";
 			
 			// Mdist, Third - 1 (Parents)
-			$md34f = findMeanDistance($thirdArrayFemale, 1);
+			$md34f = findMeanDistance($thirdList->getFemales(), 1);
 			$htmlOut = str_replace("%mdDist34f%", $md34f, $htmlOut);
 			$analysisFileOutput .= $md34f.":";
 
@@ -502,31 +467,31 @@ function dataTester($fileName,$credentials)
 			}
 			
 			// Mean center, root gen
-			$mcRoot = meanCenterPersonArray($rootArray);
+			$mcRoot = meanCenterPersonArray($rootList->getTotal());
 			$rootLatLonArray = $mcRoot;
 			$htmlOut = str_replace("%mcRoot%", (number_format($mcRoot[0], 4, '.', '').", ".number_format($mcRoot[1], 4, '.', '')), $htmlOut);
 			$analysisFileOutput .= number_format($mcRoot[0], 4, '.', '').":".number_format($mcRoot[1], 4, '.', '').":";
 			
 			// Mean center, 1st gen
-			$mc1 = meanCenterPersonArray($firstArray);
+			$mc1 = meanCenterPersonArray($firstList->getTotal());
 			mcmap("mcmap1", $mc1[0], $mc1[1]);
 			$htmlOut = str_replace("%mc1%", (number_format($mc1[0], 4, '.', '').", ".number_format($mc1[1], 4, '.', '')), $htmlOut);
 			$analysisFileOutput .= number_format($mc1[0], 4, '.', '').":".number_format($mc1[1], 4, '.', '').":";
 
 			// Mean center, 2nd gen
-			$mc2 = meanCenterPersonArray($secondArray);
+			$mc2 = meanCenterPersonArray($secondList->getTotal());
 			mcmap("mcmap2", $mc2[0], $mc2[1]);
 			$htmlOut = str_replace("%mc2%", (number_format($mc2[0], 4, '.', '').", ".number_format($mc2[1], 4, '.', '')), $htmlOut);
 			$analysisFileOutput .= number_format($mc2[0], 4, '.', '').":".number_format($mc2[1], 4, '.', '').":";
 			
 			//Mean center, 3rd gen
-			$mc3 = meanCenterPersonArray($thirdArray);
+			$mc3 = meanCenterPersonArray($thirdList->getTotal());
 			mcmap("mcmap3", $mc3[0], $mc3[1]);
 			$htmlOut = str_replace("%mc3%", (number_format($mc3[0], 4, '.', '').", ".number_format($mc3[1], 4, '.', '')), $htmlOut);
 			$analysisFileOutput .= number_format($mc3[0], 4, '.', '').":".number_format($mc3[1], 4, '.', '').":";
 			
 			// Mean center, 4th gen
-			$mc4 = meanCenterPersonArray($fourthArray);
+			$mc4 = meanCenterPersonArray($fourthList->getTotal());
 			mcmap("mcmap4", $mc4[0], $mc4[1]);
 			$htmlOut = str_replace("%mc4%", (number_format($mc4[0], 4, '.', '').", ".number_format($mc4[1], 4, '.', '')), $htmlOut);
 			$analysisFileOutput .= number_format($mc4[0], 4, '.', '').":".number_format($mc4[1], 4, '.', '').":";
@@ -575,22 +540,22 @@ function dataTester($fileName,$credentials)
 				
 			// Standard distance, root gen is always 0
 			// Standard distance, 1st gen - %sd1%
-			$sd1 = standardDistancePersonArray($mc1[0], $mc1[1], $firstArray);
+			$sd1 = standardDistancePersonArray($mc1[0], $mc1[1], $firstList->getTotal());
 			$htmlOut = str_replace("%sd1%", number_format($sd1, 4, '.', ''), $htmlOut);
 			$analysisFileOutput .= $sd1.":";
 			
 			// Standard distance, 2nd gen
-			$sd2 = standardDistancePersonArray($mc2[0], $mc2[1], $secondArray);
+			$sd2 = standardDistancePersonArray($mc2[0], $mc2[1], $secondList->getTotal());
 			$htmlOut = str_replace("%sd2%", number_format($sd2, 4, '.', ''), $htmlOut);
 			$analysisFileOutput .= $sd2.":";
 			
 			// Standard distance, 3rd gen
-			$sd3 = standardDistancePersonArray($mc3[0], $mc3[1], $thirdArray);
+			$sd3 = standardDistancePersonArray($mc3[0], $mc3[1], $thirdList->getTotal());
 			$htmlOut = str_replace("%sd3%", number_format($sd3, 4, '.', ''), $htmlOut);
 			$analysisFileOutput .= $sd3.":";
 			
 			// Standard distance, 4th gen
-			$sd4 = standardDistancePersonArray($mc4[0], $mc4[1], $fourthArray);
+			$sd4 = standardDistancePersonArray($mc4[0], $mc4[1], $fourthList->getTotal());
 			$htmlOut = str_replace("%sd4%", number_format($sd4, 4, '.', ''), $htmlOut);
 			$analysisFileOutput .= $sd4.":";
 
@@ -610,16 +575,16 @@ function dataTester($fileName,$credentials)
 			
 			// Community Stability Indexes		
 			$valueArray = array();
-			$csi1 = csi($rootArray, 1, $mcRoot,$credentials);
+			$csi1 = csi($rootList->getTotal(), 1, $mcRoot,$credentials);
 			$htmlOut = str_replace("%csiroot1%", $csi1, $htmlOut);
 			$analysisFileOutput .= $csi1.":";
-			$csi2 = csi($rootArray, 2, $mcRoot,$credentials);
+			$csi2 = csi($rootList->getTotal(), 2, $mcRoot,$credentials);
 			$htmlOut = str_replace("%csiroot2%", $csi2, $htmlOut);
 			$analysisFileOutput .= $csi2.":";
-			$csi3 = csi($rootArray, 3, $mcRoot,$credentials);
+			$csi3 = csi($rootList->getTotal(), 3, $mcRoot,$credentials);
 			$htmlOut = str_replace("%csiroot3%", $csi3, $htmlOut);
 			$analysisFileOutput .= $csi3.":";
-			$csi4 = csi($rootArray, 4, $mcRoot,$credentials);
+			$csi4 = csi($rootList->getTotal(), 4, $mcRoot,$credentials);
 			$htmlOut = str_replace("%csiroot4%", $csi4, $htmlOut);
 			$analysisFileOutput .= $csi4.":";
 			
@@ -628,13 +593,13 @@ function dataTester($fileName,$credentials)
 
 			unset($valueArray);
 			$valueArray = array();
-			$rcm1 = RCM($rootArray, 1);
+			$rcm1 = RCM($rootList->getTotal(), 1);
 			$analysisFileOutput .= $rcm1.":";
-			$rcm2 = RCM($rootArray, 2);
+			$rcm2 = RCM($rootList->getTotal(), 2);
 			$analysisFileOutput .= $rcm2.":";
-			$rcm3 = RCM($rootArray, 3);
+			$rcm3 = RCM($rootList->getTotal(), 3);
 			$analysisFileOutput .= $rcm3.":";
-			$rcm4 = RCM($rootArray, 4);
+			$rcm4 = RCM($rootList->getTotal(), 4);
 			$analysisFileOutput .= $rcm4.":";
 
 	//########################################################################//
@@ -642,37 +607,37 @@ function dataTester($fileName,$credentials)
 			
 			// Community Heritage Ratios
 			if($analysisFileName == "California.txt") {
-				$chrroot1 = chr_calcCA($firstArray, "r1", $analysisFileName);
+				$chrroot1 = chr_calcCA($firstList->getTotal(), "r1", $analysisFileName);
 				$analysisFileOutput .= $chrroot1;
-				$chrroot2 = chr_calcCA($secondArray, "r2", $analysisFileName);
+				$chrroot2 = chr_calcCA($secondList->getTotal(), "r2", $analysisFileName);
 				$analysisFileOutput .= $chrroot2;
-				$chrroot3 = chr_calcCA($thirdArray, "r3", $analysisFileName);
+				$chrroot3 = chr_calcCA($thirdList->getTotal(), "r3", $analysisFileName);
 				$analysisFileOutput .= $chrroot3;
-				$chrroot4 = chr_calcCA($fourthArray, "r4", $analysisFileName);
+				$chrroot4 = chr_calcCA($fourthList->getTotal(), "r4", $analysisFileName);
 				$analysisFileOutput .= $chrroot4;
 			}
 			elseif($analysisFileName == "CommunityHeritageRatioUS.txt"){
-				$chrroot1 = chr_calcUS($firstArray, "r1", $analysisFileName);
+				$chrroot1 = chr_calcUS($firstList->getTotal(), "r1", $analysisFileName);
 				$analysisFileOutput .= "\r\nFirst Generation\r\n";
 				$analysisFileOutput .= $chrroot1;
-				$chrroot2 = chr_calcUS($secondArray, "r2", $analysisFileName);
+				$chrroot2 = chr_calcUS($secondList->getTotal(), "r2", $analysisFileName);
 				$analysisFileOutput .= "Second Generation\r\n";
 				$analysisFileOutput .= $chrroot2;
-				$chrroot3 = chr_calcUS($thirdArray, "r3", $analysisFileName);
+				$chrroot3 = chr_calcUS($thirdList->getTotal(), "r3", $analysisFileName);
 				$analysisFileOutput .= "Third Generation\r\n";
 				$analysisFileOutput .= $chrroot3;
-				$chrroot4 = chr_calcUS($fourthArray, "r4", $analysisFileName);
+				$chrroot4 = chr_calcUS($fourthList->getTotal(), "r4", $analysisFileName);
 				$analysisFileOutput .= "Fourth Generation\r\n";
 				$analysisFileOutput .= $chrroot4;
 			}
 			else {
-				$chrroot1 = chr_calc($firstArray, "r1", $analysisFileName);
+				$chrroot1 = chr_calc($firstList->getTotal(), "r1", $analysisFileName);
 				$analysisFileOutput .= $chrroot1;
-				$chrroot2 = chr_calc($secondArray, "r2", $analysisFileName);
+				$chrroot2 = chr_calc($secondList->getTotal(), "r2", $analysisFileName);
 				$analysisFileOutput .= $chrroot2;
-				$chrroot3 = chr_calc($thirdArray, "r3", $analysisFileName);
+				$chrroot3 = chr_calc($thirdList->getTotal(), "r3", $analysisFileName);
 				$analysisFileOutput .= $chrroot3;
-				$chrroot4 = chr_calc($fourthArray, "r4", $analysisFileName);
+				$chrroot4 = chr_calc($fourthList->getTotal(), "r4", $analysisFileName);
 				$analysisFileOutput .= $chrroot4;
 			}
 
@@ -688,7 +653,7 @@ function dataTester($fileName,$credentials)
 			$htmlOut .= "<a href='data/v2/analysisCSV/$analysisFileName' target='_blank'>Download Analysis</a>";
 			
 			// Insert the mean distance the root generation migrated birth to death
-			$mdrbd = mdRootDeath($rootArray);
+			$mdrbd = mdRootDeath($rootList->getTotal());
 			$htmlOut = str_replace("%mdrbd%", $mdrbd[0], $htmlOut);
 			$htmlOut = str_replace("%numBD%", $mdrbd[1], $htmlOut);
 			
@@ -697,26 +662,25 @@ function dataTester($fileName,$credentials)
 			echo "<h3>Generation Details</h3>";
 			echo "<div class='col-md-3'>";
 			echo "<h4 id='gen1head'>Generation 1</h4>";
-			mapGen($firstArray, "map1", "birth");
+			mapGen($firstList->getTotal(), "map1", "birth");
 			echo "</div>";
 			
 			echo "<div class='col-md-3'>";
 			echo "<h4 id='gen2head'>Generation 2</h4>";
-			mapGen($secondArray, "map2", "birth");
+			mapGen($secondList->getTotal(), "map2", "birth");
 			echo "</div>";
 			
 			echo "<div class='col-md-3'>";
 			echo "<h4 id='gen3head'>Generation 3</h4>";
-			mapGen($thirdArray, "map3", "birth");
+			mapGen($thirdList->getTotal(), "map3", "birth");
 			echo "</div>";
 			
 			echo "<div class='col-md-3'>";
 			echo "<h4 id='gen4head'>Generation 4</h4>";
-			mapGen($fourthArray, "map4", "birth");
+			mapGen($fourthList->getTotal(), "map4", "birth");
 			echo "</div>";
 
-			unset($htmlOut,$xml,$analysisFileOutput,$person,$famArray,$rootArray,$rootArrayMale,$rootArrayFemale,$firstArray,$firstArrayMale,$firstArrayFemale,$secondArray,$secondArrayMale,$secondArrayFemale,$thirdArray,$thirdArrayMale,$thirdArrayFemale,$fourthArray,$fourthArrayMale,$fourthArrayFemale
-	);
+			unset($htmlOut,$xml,$analysisFileOutput,$person,$famArray,$rootList,$firstList,$secondList,$thirdList,$fourthList);
 
 		}
 		catch(Exception $e)
@@ -801,12 +765,12 @@ function distAncestors($currentMember, $targetMember, $currentGen, $targetGen,$d
 	return -999;
 }
 
-function mdRootDeath($rootArray)
+function mdRootDeath($rootList)
 {
 	$mdTotal = 0;
 	$mdCount = 0;
 	$mdBDArray = array();
-	foreach($rootArray as $person)
+	foreach($rootList as $person)
 	{
 		if ($person->getDeathPlace()->Lat() != -999 && $person->getDeathPlace()->Lon() != -999 
 			&& $person->getBirthPlace()->Lat() != -999 && $person->getBirthPlace()->Lon() != -999
@@ -828,7 +792,7 @@ function mdRootDeath($rootArray)
 		}
 	}
 	//echo "<h1>Size of mdCount</h1>$mdCount";
-	mapGen($rootArray, "root_death_map", "death");
+	mapGen($rootList, "root_death_map", "death");
 	if ($mdCount != 0)
 	{
 		return array(number_format(($mdTotal / $mdCount), 4, '.', ''), $mdCount);
@@ -1028,17 +992,17 @@ function getGenCount($firstArray){
 			}
 	return $gen1know;
 }
-function getFileData($rootArray){
+function getFileData($rootList){
 	$rootOut = "";
-	foreach($rootArray as $p)
+	foreach($rootList as $p)
 	{
 		$rootOut .= $p->getId().",";
 	}
 	return $rootOut;
 }
-function storeGenerationData($rootArray,$firstArray,$secondArray,$thirdArray,$fourthArray)
+function storeGenerationData($rootList,$firstArray,$secondArray,$thirdArray,$fourthArray)
 {
-	$rootOut = getFileData($rootArray);
+	$rootOut = getFileData($rootList);
 	file_put_contents("data/root.txt", $rootOut);
 	$firstOut = getFileData($firstArray);
 	file_put_contents("data/first.txt", $firstOut);
@@ -1054,11 +1018,6 @@ function storeGenerationData($rootArray,$firstArray,$secondArray,$thirdArray,$fo
 function testSetChildren($test)
 {
 	$test["name"]= "";
-
-	
-	
-	
-	
 	return $test;
 }	
 

@@ -14,23 +14,28 @@ class DAO {
 	
 	private function isValidField($param)
 	{
+		//var_dump($param);
 		if (!isset($param))
 		{
+			echo "<div class='well'>$param is not set</div>";
 			return false;
 		}
 		else if ($param == "")
 		{
+			echo "<div class='well'>$param ==\"\"</div>";
 			return false;
 		}
 		else if ($param == -999)
 		{
+			echo "<div class='well'>$param == -999</div>";
 			return false;
 		}
 		else if ($param == "-999")
 		{
+			echo "<div class='well'>$param == \"-999\"</div>";
 			return false;
 		}
-	
+		
 		return true;
 	}
 	/**
@@ -38,7 +43,7 @@ class DAO {
 	*/
 	public function insertISOLocation($key, $normalized, $lat, $lng, $iso)
 	{
-		if ($this->isValidField($normalized) && $this->isValidField($lat) && $this->isValidField($lon))
+		if ( $this->isValidField($lat) && $this->isValidField($lng))
 		{
 
 		$command = "INSERT INTO fsplacesiso (fsid, name, lat, lng, iso) SELECT '$key', '$normalized', '$lat', $lng, '$iso' WHERE
