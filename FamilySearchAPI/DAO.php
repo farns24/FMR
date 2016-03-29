@@ -38,7 +38,7 @@ class DAO {
 	*/
 	public function insertISOLocation($key, $normalized, $lat, $lng, $iso)
 	{
-		if ($this->isValidField($key) && $this->isValidField($normalized) && $this->isValidField($lat) && $this->isValidField($lon))
+		if ($this->isValidField($normalized) && $this->isValidField($lat) && $this->isValidField($lon))
 		{
 
 		$command = "INSERT INTO fsplacesiso (fsid, name, lat, lng, iso) SELECT '$key', '$normalized', '$lat', $lng, '$iso' WHERE
@@ -53,7 +53,7 @@ class DAO {
 		else
 		{
 			echo "<div class = 'well>$key $lat $lng Not inserted into database</div>";
-			throw new Exception();
+			//throw new Exception();
 		}
 
 	}
