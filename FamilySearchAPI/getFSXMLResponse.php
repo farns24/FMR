@@ -16,7 +16,7 @@ class FsConnect{
 
 	public function getFSXMLResponse($credentials, &$queryURL)
 	{
-	echo "<div class= 'well'>$queryURL</div>";
+	//echo "<div class= 'well'>$queryURL</div>";
 		$waitTime = 1;
 		do
 		{

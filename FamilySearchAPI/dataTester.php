@@ -933,7 +933,7 @@ function processFamily($famCount,$fam,$famArray,$direction,$credentials)
 							
 							if($event->value['type'] == "Birth")
 							{
-								var_dump($event);
+								//var_dump($event);
 								// If the place is recorded in the person record, create a new Place object and populate it with lat/long values from the XML
 								if(isset($event->value->place->normalized['id']) and $event->value->place->normalized['id']!="")
 								{

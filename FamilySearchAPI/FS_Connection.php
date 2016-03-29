@@ -33,10 +33,6 @@ function logOn($mainURL, $credentials)
 
 	$request->sendRequest();
 	
-	//$responseHtml = <<<HTML_HEADER
-
-//HTML_HEADER;
-	
 	//the response will come in the form of an html file
 	$response = $request->getResponseBody();
 	
@@ -58,7 +54,7 @@ function FSQuery($credentials, $queryURL)
 
 	
 	
-	echo "<div class='well'> $queryURL</div>";
+	//echo "<div class='well'> $queryURL</div>";
 	$request = new HTTP_Request($queryURL);
 	//Authorization
 	$request->setMethod("GET");

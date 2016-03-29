@@ -12,32 +12,55 @@ require_once('Singleton.php');
 class DAO {
 
 	
-
+	private function isValidField($param)
+	{
+		if (!isset($param))
+		{
+			return false;
+		}
+		else if ($param == "")
+		{
+			return false;
+		}
+		else if ($param == -999)
+		{
+			return false;
+		}
+		else if ($param == "-999")
+		{
+			return false;
+		}
+	
+		return true;
+	}
 	/**
 	*@pre $key is type intiger
 	*/
 	public function insertISOLocation($key, $normalized, $lat, $lng, $iso)
 	{
+		if ($this->isValidField($key) && $this->isValidField($normalized) && $this->isValidField($lat) && $this->isValidField($lon))
+		{
 
-	$command = "INSERT INTO fsplacesiso (fsid, name, lat, lng, iso) SELECT '$key', '$normalized', '$lat', $lng, '$iso' WHERE
-	   NOT EXISTS (
-			SELECT fsid FROM fsplacesiso WHERE fsid = '$key'
-		);";
-
-	// $oldCommand = "INSERT INTO fsplacesiso (fsid, name, lat, lng, iso) VALUES('$key', '$normalized', $lat, $lng, '$iso');";
-
-
+		$command = "INSERT INTO fsplacesiso (fsid, name, lat, lng, iso) SELECT '$key', '$normalized', '$lat', $lng, '$iso' WHERE
+		   NOT EXISTS (
+				SELECT fsid FROM fsplacesiso WHERE fsid = '$key'
+			);";
+		
+		
 		$this->runCommand($command);
-	pg_close();
-
-
-	//Test 
+		pg_close();
+		}
+		else
+		{
+			echo "<div class = 'well>$key $lat $lng Not inserted into database</div>";
+			throw new Exception();
+		}
 
 	}
 	
 	public function clean()
 	{
-		$command = "SELECT lat,lng,fsid FROM fsplacesiso;";
+		$command = "SELECT fsid,lat,lng FROM fsplacesiso;";
 		$result = $this->runCommand($command);
 		
 		
@@ -45,15 +68,15 @@ class DAO {
 		
 		foreach($rows as $row)
 		{
-			if ($row[0]!="-999"&&$row[1]!="-999")
+			if ($this->isValidField($row[1]) && $this->isValidField($row[2]))
 			{
 				continue;
 			}
 			else
 			{
-				echo "<b>Removed</b><br/>";
-				var_dump($row);
-				$this->deleteFromDb($row[2]);
+				//echo "<b>Removed</b><br/>";
+				//var_dump($row);
+				$this->deleteFromDb((int)$row[0]);
 			}
 			
 		}
@@ -185,6 +208,12 @@ class DAO {
 			array_push($test["info"],"Failed Remove Sedalia CT");
 		}
 		return $test;
+	}
+	
+	public function clear()
+	{
+		$command = "DELETE FROM fsplacesiso;";
+		$result = $this->runCommand($command);
 	}
 
 	public function testDaoNullISO($test)

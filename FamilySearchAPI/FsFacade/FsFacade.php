@@ -8,9 +8,9 @@ require_once('DynamicCache.php');
 			private $cache = null;
 		function __construct()
 		{
-					$this->dao = FmrFactory::createDao();
-					$this->fsConnect = FmrFactory::createFsConnect();
-					$this->cache = new DynamicCache();
+			$this->dao = FmrFactory::createDao();
+			$this->fsConnect = FmrFactory::createFsConnect();
+			$this->cache = new DynamicCache();
 		}
 		
 		public function getId($placeName, $credentials)
@@ -54,6 +54,7 @@ require_once('DynamicCache.php');
 					$id = $props["id"];
 					$lat = $props["latitude"];
 					$lng = $props["longitude"];
+					var_dump($props);
 					if ($id=="")
 					{
 						echo "Id not found";
@@ -79,12 +80,12 @@ require_once('DynamicCache.php');
 			//Check Cache
 			$cacheRow = $this->cache->get($placeId);
 			
-			if (sizeof($cacheRow)==3)
+			if (sizeof($cacheRow)==3 && isset($cacheRow['lat']))
 			{
 					$result[0] = $cacheRow['lat'];					
 					$result[1] = $cacheRow['lon'];					
 					$result[2] = $cacheRow['iso'];
-					var_dump($result);
+					//var_dump($result);
 					return $result;
 			}
 			else 
@@ -108,16 +109,16 @@ require_once('DynamicCache.php');
 				if (!$isInDatabase)
 				{
 
-					$result = $this->getPlaceFromFS($placeId,$credentials,$pName);
+					$fsresult = $this->getPlaceFromFS($placeId,$credentials,$pName);
 					
-					$result[0] = $result["lat"];
-					$result[1] = $result["lon"];
-					$result[2] = $result["iso"];
+					$result[0] = $fsresult["lat"];
+					$result[1] = $fsresult["lon"];
+					$result[2] = $fsresult["iso"];
 
 					$this->cache->add($placeId,$result["iso"],$result["lat"],$result["lon"]);
 					
 				}
-				var_dump($result);
+				//var_dump($result);
 				return $result;
 			}
 		}
@@ -131,14 +132,14 @@ require_once('DynamicCache.php');
 			$credentials["loggedOn"] = $_COOKIE["loggedOn"];
 			$credentials["mainURL"] = $_COOKIE["mainURL"];
 			
-			$latLngURL = $credentials["mainURL"].'platform/places/'.$placeId;
+			$latLngURL = $credentials["mainURL"].'platform/places/description/'.$placeId;
 			$latLngXML = $this->fsConnect->getFSXMLResponse($credentials, $latLngURL);
 
 			
 			$key = $placeId;
 			$normalized = '';
 			$lat = -999;
-			$lng = -999;
+			$lon = -999;
 			$iso = -999;
 			$insertFlag = false;
 			
@@ -148,7 +149,7 @@ require_once('DynamicCache.php');
 			if (!$insertFlag)
 			{
 				//try description
-				$latLngURL = $credentials["mainURL"].'platform/places/description/'.$placeId;//.'?';
+				$latLngURL = $credentials["mainURL"].'platform/places/'.$placeId;//.'?';
 				$latLngXML = $this->fsConnect->getFSXMLResponse($credentials, $latLngURL);
 				$this->getLatLonFromRequest($lat,$lon,$latLngXML,$insertFlag,$iso, $key,$normalized,$latLngURL,$pName);
 			}
@@ -159,7 +160,7 @@ require_once('DynamicCache.php');
 			
 					try{
 					
-						$this->dao->insertISOLocation($key, $normalized, $lat, $lng, $iso);
+						$this->dao->insertISOLocation($placeId, $normalized, $lat, $lon, $iso);
 					}
 					catch(Exception $e)
 					{
@@ -189,11 +190,11 @@ require_once('DynamicCache.php');
 						if(isset($place['iso'])) {
 							$iso = (string)$place['iso'];
 						}
-						if(isset($place["latitude"]) && isset($place["longitude"]) &&isset($place["names"][0]["value"]) &&isset($place['id']))
+						if(isset($place["names"][0]["value"]) &&isset($place['id']))
 						{
 							$lat = $place["latitude"];
 							$lon = $place["longitude"];
-							$normalized = "'".$place["names"][0]["value"]."'";
+							$normalized = "'".$place["display"]["fullName"]."'";
 							$key = (string)$place['id'];
 							$insertFlag = true;
 							return;

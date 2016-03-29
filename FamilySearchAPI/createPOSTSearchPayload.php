@@ -39,7 +39,6 @@ function buildPayload($POSTVars,$startYear)
 	$city = $POSTVars['city'];
 	$fullName = $POSTVars['fullName'];
 	$fullName = urlencode($fullName);
-	//$giveOrTake = (int)$POSTVars['giveOrTake'];
 	
 	if($event == "birth")
 	{
@@ -62,8 +61,6 @@ function buildPayload($POSTVars,$startYear)
 	$endRange= $startYearInt + $giveOrTake;
 	
 	$payload = "q=".$event.":"."\"1%20January%20".$startRange."\"-\""."31%20December%20".$endRange."\"%20";
-	//$payload = "q=$event:\"$startRange.\"-\"$endRange\"%20";
-	//$payload .= $eventPlace.":\"".$city.",%20".$county.",%20".$state."\",%20";
 	
 	$payload .= $eventPlace.":$fullName";
 	//$payload = urlencode($payload);
