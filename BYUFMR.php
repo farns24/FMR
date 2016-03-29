@@ -676,11 +676,7 @@ Ascendancy Number: $asNum
 *     filePath - text  
 */
 function initDb(){
-	//$query = "CREATE TABLE Project(projectName text, projectId integer primary key);";
-	$query = "DELETE FROM PlaceToId WHERE pid = '';";
-	//$pgConnection = pg_connect('host=localhost port=5432 dbname=familysearch user=familysearch password=familysearch');
-	//			$result = pg_query($pgConnection, $query);
-	
+	//FmrFactory::createDao()->clear();
 };
 
 function insert_project($myFile,$project,$fileName)
