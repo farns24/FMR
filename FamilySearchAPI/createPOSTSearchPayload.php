@@ -62,16 +62,16 @@ function buildPayload($POSTVars,$startYear)
 	
 	$payload = "q=".$event.":"."\"1%20January%20".$startRange."\"-\""."31%20December%20".$endRange."\"%20";
 	
-	$payload .= $eventPlace.":$fullName";
-	//$payload = urlencode($payload);
+	$payload .= $eventPlace.":$fullName~";//TODO add ~ to include non exact matches
+
 	$payload = str_replace("+","%20",$payload);
-	$payload = str_replace("Å","%C5",$payload);
+	//$payload = str_replace("Å","%C5",$payload);
 	$payload = str_replace("%20%20","%20",$payload);
 	$payload = str_replace("%20/%20","%20",$payload);
 	$payload = str_replace("%20,%20","%20",$payload); //, ,
 
 	
-	//buildPayloadArray($event,$eventPlace,$city,$state,$county,$startYear,$giveOrTake);
+
 	
 	return $payload;
 	
