@@ -1,7 +1,9 @@
 <?php 
 // Mean distance helper function
+
 function findMeanDistance($arrayName, $parentLevel)
 {
+	trigger_error("Deprecated function called.", E_USER_NOTICE);
 	$mdTotal = 0;
 	$mdCount = 0;
 	foreach($arrayName as $person)
