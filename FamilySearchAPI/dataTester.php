@@ -15,7 +15,6 @@ require_once("dataTesterFiles/RCM.php");
 require_once("dataTesterFiles/chr_calcCA.php");
 require_once("dataTesterFiles/chr_calc.php");
 require_once("scrubEurope.php");
-require_once("findMeanDistance.php");
 require_once("dataTesterFiles/chr_calcUS.php");
 require_once("mapUtils.php");
 require_once("csiUtils.php");
@@ -24,6 +23,9 @@ require_once("FamilyBuilder\AncestorBuilder.php");
 require_once("FamilyBuilder\DecendenceBuilder.php");
 require_once("DataSearch\Model\StatsList.php");
 require_once("dataTesterFiles\meanDistance\LeanMeanDistanceFinder.php");
+require_once("dataTesterFiles\meanDistance\MeanCenterFinder.php");
+require_once("dataTesterFiles\eventPlaceGenerator\BirthPlaceGenerator.php");
+require_once("dataTesterFiles\eventPlaceGenerator\DeathPlaceGenerator.php");
 
 global $rootLatLonArray;
 
@@ -738,53 +740,18 @@ function processFamily($famCount,$fam,$famArray,$direction,$credentials)
 					// Set the events
 					if(isset($person->assertions->events->event))
 					{
-						
+						$birthGenerator = new BirthPlaceGenerator();
+						$deathGenerator = new DeathPlaceGenerator();
 						foreach($person->assertions->events->event as $event)
 						{
 							
 							if($event->value['type'] == "Birth")
 							{
-								//var_dump($event);
-								// If the place is recorded in the person record, create a new Place object and populate it with lat/long values from the XML
-								if(isset($event->value->place->normalized['id']) and $event->value->place->normalized['id']!="")
-								{
-									//echo "<h1>Birth Place</h1>";
-									$pName = $event->value->place->original;
-									$$persId->setBirthPlace(new Place(1, $event->value->place->normalized['id'], -999, -999,$credentials,$pName));
-								}
-								// If the place is not recorded, create a 'dummy' place to act as a placeholder for analysis
-								else
-								{
-									
-									$$persId->setBirthPlace(new Place(0, "-999", -999, -999,$credentials,""));
-								}
-								if(isset($event->value->date->normalized))
-								{
-									$$persId->setBirthDate($event->value->date->normalized);
-								}
+								$birthGenerator->setPlace($event,$$persId,$credentials);
 							}
 							else if($event->value['type'] == "Death")
 							{
-								
-								// If the place is recorded in the person record, create a new Place object and populate it with lat/long values from the XML
-								if(isset($event->value->place->normalized['id']) and $event->value->place->normalized['id']!="")
-								{
-									//echo "<h1>Death Place</h1>";
-									$pid = $event->value->place->normalized['id'];
-									$pName = $event->value->place->original;
-									$$persId->setDeathPlace(new Place(1, $pid, -999, -999,$credentials,$pName));
-								}
-								// If the place is not recorded, create a 'dummy' place to act as a placeholder for analysis
-								else
-								{
-									
-									$$persId->setDeathPlace(new Place(0, "-999", -999, -999,$credentials,""));
-								}
-								if(isset($event->value->date->normalized))
-								{
-									//echo "<h1>Death Date</h1>";
-									$$persId->setDeathDate($event->value->date->normalized);
-								}
+								$deathGenerator->setPlace($event,$$persId,$credentials);
 							}
 								
 						}
