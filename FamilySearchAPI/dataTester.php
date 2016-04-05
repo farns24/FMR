@@ -23,7 +23,7 @@ require_once("preCondition.php");
 require_once("FamilyBuilder\AncestorBuilder.php");
 require_once("FamilyBuilder\DecendenceBuilder.php");
 require_once("DataSearch\Model\StatsList.php");
-require_once("dataTesterFiles\meanDistance\MeanDistanceFinder.php");
+require_once("dataTesterFiles\meanDistance\LeanMeanDistanceFinder.php");
 
 global $rootLatLonArray;
 
@@ -297,129 +297,10 @@ function dataTester($fileName,$credentials)
 			($numPeople4 != 0)? $analysisFileOutput .= $numPeople4.":" : $analysisFileOutput .= "N/A:";
 			
 			// Start Mean Distance of migration matrix
-			$meanDistFinder = new MeanDistanceFinder();
-			// Mdist, root - 1 (Parents)
-			$meanDistFinder->calculate("%mdDistRoot1%",1,$rootList,$htmlOut,$analysisFileOutput);
-			// Mdist, root - 2 (GParents)
-			$meanDistFinder->calculate("%mdDistRoot2%",2,$rootList,$htmlOut,$analysisFileOutput);
-			// Mdist, root - 3 (GGParents)
-			$meanDistFinder->calculate("%mdDistRoot3%",3,$rootList,$htmlOut,$analysisFileOutput);
-			// Mdist, root - 4 (GGGParents)
-			$meanDistFinder->calculate("%mdDistRoot4%",4,$rootList,$htmlOut,$analysisFileOutput);
-			// Mdist, first - 1 (Parents)
-			$meanDistFinder->calculate("%mdDist12%",1,$firstList,$htmlOut,$analysisFileOutput);
-			// Mdist, first - 2  (GParents)
-			$meanDistFinder->calculate("%mdDist13%",2,$firstList,$htmlOut,$analysisFileOutput);
-			// Mdist, first - 3 (GGParents)
-			$meanDistFinder->calculate("%mdDist14%",3,$firstList,$htmlOut,$analysisFileOutput);
-			// Mdist, second - 1 (Parents)
-			$meanDistFinder->calculate("%mdDist23%",1,$secondList,$htmlOut,$analysisFileOutput);
-			// Mdist, Second - 2 (GParents)
-			$meanDistFinder->calculate("%mdDist24%",2,$secondList,$htmlOut,$analysisFileOutput);
-			// Mdist, Third - 1 (Parents)
-			$meanDistFinder->calculate("%mdDist34%",1,$thirdList,$htmlOut,$analysisFileOutput);
-			// Males Only
-			// Mdist, root - 1 (Parents)
-			$mdroot1m = findMeanDistance($rootList->getMales(), 1);
-			$htmlOut = str_replace("%mdDistRoot1m%", $mdroot1m, $htmlOut);
-			$analysisFileOutput .= $mdroot1m.":";
-			
-			// Mdist, root - 2 (GParents)
-			$mdroot2m = findMeanDistance($rootList->getMales(), 2);
-			$htmlOut = str_replace("%mdDistRoot2m%", $mdroot2m, $htmlOut);
-			$analysisFileOutput .= $mdroot2m.":";
-			
-			// Mdist, root - 3 (GGParents)
-			$mdroot3m = findMeanDistance($rootList->getMales(), 3);
-			$htmlOut = str_replace("%mdDistRoot3m%", $mdroot3m, $htmlOut);
-			$analysisFileOutput .= $mdroot3m.":";
-			
-			// Mdist, root - 4 (GGGParents)
-			$mdroot4m = findMeanDistance($rootList->getMales(), 4);
-			$htmlOut = str_replace("%mdDistRoot4m%", $mdroot4m, $htmlOut);
-			$analysisFileOutput .= $mdroot4m.":";
-			
-			// Mdist, first - 1 (Parents)
-			$md12m = findMeanDistance($firstList->getMales(), 1);
-			$htmlOut = str_replace("%mdDist12m%", $md12m, $htmlOut);
-			$analysisFileOutput .= $md12m.":";
-			
-			// Mdist, first - 2  (GParents)
-			$md13m = findMeanDistance($firstList->getMales(), 2);
-			$htmlOut = str_replace("%mdDist13m%", $md13m, $htmlOut);
-			$analysisFileOutput .= $md13m.":";
-			
-			// Mdist, first - 3 (GGParents)
-			$md14m = findMeanDistance($firstList->getMales(), 3);
-			$htmlOut = str_replace("%mdDist14m%", $md14m, $htmlOut);
-			$analysisFileOutput .= $md14m.":";
-
-			// Mdist, second - 1 (Parents)
-			$md23m = findMeanDistance($secondList->getMales(), 1);
-			$htmlOut = str_replace("%mdDist23m%", $md23m, $htmlOut);
-			$analysisFileOutput .= $md23m.":";
-			
-			// Mdist, Second - 2 (GParents)
-			$md24m = findMeanDistance($secondList->getMales(), 2);
-			$htmlOut = str_replace("%mdDist24m%", $md24m, $htmlOut);
-			$analysisFileOutput .= $md24m.":";
-			
-			// Mdist, Third - 1 (Parents)
-			$md34m = findMeanDistance($thirdList->getMales(), 1);
-			$htmlOut = str_replace("%mdDist34m%", $md34m, $htmlOut);
-			$analysisFileOutput .= $md34m.":";
-
-			// Females Only
-			// Mdist, root - 1 (Parents)
-			$mdroot1f = findMeanDistance($rootList->getFemales(), 1);
-			$htmlOut = str_replace("%mdDistRoot1f%", $mdroot1f, $htmlOut);
-			$analysisFileOutput .= $mdroot1f.":";
-			
-			// Mdist, root - 2 (GParents)
-			$mdroot2f = findMeanDistance($rootList->getFemales(), 2);
-			$htmlOut = str_replace("%mdDistRoot2f%", $mdroot2f, $htmlOut);
-			$analysisFileOutput .= $mdroot2f.":";
-			
-			// Mdist, root - 3 (GGParents)
-			$mdroot3f = findMeanDistance($rootList->getFemales(), 3);
-			$htmlOut = str_replace("%mdDistRoot3f%", $mdroot3f, $htmlOut);
-			$analysisFileOutput .= $mdroot3f.":";
-			
-			// Mdist, root - 4 (GGGParents)
-			$mdroot4f = findMeanDistance($rootList->getFemales(), 4);
-			$htmlOut = str_replace("%mdDistRoot4f%", $mdroot4f, $htmlOut);
-			$analysisFileOutput .= $mdroot4f.":";
-			
-			// Mdist, first - 1 (Parents)
-			$md12f = findMeanDistance($firstList->getFemales(), 1);
-			$htmlOut = str_replace("%mdDist12f%", $md12f, $htmlOut);
-			$analysisFileOutput .= $md12f.":";
-			
-			// Mdist, first - 2  (GParents)
-			$md13f = findMeanDistance($firstList->getFemales(), 2);
-			$htmlOut = str_replace("%mdDist13f%", $md13f, $htmlOut);
-			$analysisFileOutput .= $md13f.":";
-			
-			// Mdist, first - 3 (GGParents)
-			$md14f = findMeanDistance($firstList->getFemales(), 3);
-			$htmlOut = str_replace("%mdDist14f%", $md14f, $htmlOut);
-			$analysisFileOutput .= $md14f.":";
-
-			// Mdist, second - 1 (Parents)
-			$md23f = findMeanDistance($secondList->getFemales(), 1);
-			$htmlOut = str_replace("%mdDist23f%", $md23f, $htmlOut);
-			$analysisFileOutput .= $md23f.":";
-			
-			// Mdist, Second - 2 (GParents)
-			$md24f = findMeanDistance($secondList->getFemales(), 2);
-			$htmlOut = str_replace("%mdDist24f%", $md24f, $htmlOut);
-			$analysisFileOutput .= $md24f.":";
-			
-			// Mdist, Third - 1 (Parents)
-			$md34f = findMeanDistance($thirdList->getFemales(), 1);
-			$htmlOut = str_replace("%mdDist34f%", $md34f, $htmlOut);
-			$analysisFileOutput .= $md34f.":";
-
+			$leanMeanDistanceFinder = new LeanMeanDistanceFinder();
+			$leanMeanDistanceFinder->solveMeanDistances("ALL",$rootList,$firstList,$secondList,$thirdList,$htmlOut,$analysisFileOutput);
+			$leanMeanDistanceFinder->solveMeanDistances("MALE",$rootList,$firstList,$secondList,$thirdList,$htmlOut,$analysisFileOutput);
+			$leanMeanDistanceFinder->solveMeanDistances("FEMALE",$rootList,$firstList,$secondList,$thirdList,$htmlOut,$analysisFileOutput);
 			
 			// Ancestor Dispersal Indexes		
 			if ($mdroot1!=0)

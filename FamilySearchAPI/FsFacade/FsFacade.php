@@ -54,7 +54,7 @@ require_once('DynamicCache.php');
 					$id = $props["id"];
 					$lat = $props["latitude"];
 					$lng = $props["longitude"];
-					var_dump($props);
+					//var_dump($props);
 					if ($id=="")
 					{
 						echo "Id not found";

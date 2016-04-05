@@ -65,7 +65,6 @@ function buildPayload($POSTVars,$startYear)
 	$payload .= $eventPlace.":$fullName~";//TODO add ~ to include non exact matches
 
 	$payload = str_replace("+","%20",$payload);
-	//$payload = str_replace("Å","%C5",$payload);
 	$payload = str_replace("%20%20","%20",$payload);
 	$payload = str_replace("%20/%20","%20",$payload);
 	$payload = str_replace("%20,%20","%20",$payload); //, ,

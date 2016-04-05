@@ -4,7 +4,7 @@
 
 		public function calculate($flag,$gen,$genList,&$html,&$analysisFileOutput)
 		{
-			$mdGen = $this->findMeanDistance($genList->getTotal(), $gen);
+			$mdGen = $this->findMeanDistance($genList, $gen);
 			$html = str_replace($flag, $mdGen, $html);
 			$analysisFileOutput .= $mdGen.":";
 		}
