@@ -26,6 +26,7 @@ require_once("dataTesterFiles\meanDistance\LeanMeanDistanceFinder.php");
 require_once("dataTesterFiles\meanDistance\MeanCenterFinder.php");
 require_once("dataTesterFiles\eventPlaceGenerator\BirthPlaceGenerator.php");
 require_once("dataTesterFiles\eventPlaceGenerator\DeathPlaceGenerator.php");
+require_once("dataTesterFiles\generationStats\GenResultsFinder.php");
 
 global $rootLatLonArray;
 
@@ -252,51 +253,13 @@ function dataTester($fileName,$credentials)
 			
 			// Total number of people
 			$numPeople = getTotalPeopleCount($famArray);	
-			$htmlOut = str_replace("%numPeople%", $numPeople, $htmlOut);		
-			$gen1know = getGenCount($firstList->getTotal());
+			$htmlOut = str_replace("%numPeople%", $numPeople, $htmlOut);
 			
-			// Number of people, 1st gen
-			$numPeople1 = count($firstList->getTotal());
-			echo "<br>Number of people in first generation ".count($firstList->getTotal());
-			$htmlOut = str_replace("%1Genposs%", ($numFamilies*2), $htmlOut);
-			(($numFamilies*2) != 0)? $analysisFileOutput .= ($numFamilies*2).":" : $analysisFileOutput .= "N/A:";
-			$htmlOut = str_replace("%1Genknow%", $gen1know, $htmlOut);
-			($gen1know != 0)? $analysisFileOutput .= $gen1know.":" : $analysisFileOutput .= "N/A:";
-			$htmlOut = str_replace("%1Genuniq%", $numPeople1, $htmlOut);
-			($numPeople1 != 0)? $analysisFileOutput .= $numPeople1.":" : $analysisFileOutput .= "N/A:";
-
-			$gen2know = getGenCount($secondList->getTotal());
-			
-			// Number of people, 2nd gen
-			$numPeople2 = count($secondList->getTotal());
-			$htmlOut = str_replace("%2Genposs%", ($numFamilies*4), $htmlOut);
-			(($numFamilies*4) != 0)? $analysisFileOutput .= ($numFamilies*4).":" : $analysisFileOutput .= "N/A:";
-			$htmlOut = str_replace("%2Genknow%", $gen2know, $htmlOut);
-			($gen2know != 0)? $analysisFileOutput .= $gen2know.":" : $analysisFileOutput .= "N/A:";
-			$htmlOut = str_replace("%2Genuniq%", $numPeople2, $htmlOut);
-			($numPeople2 != 0)? $analysisFileOutput .= $numPeople2.":" : $analysisFileOutput .= "N/A:";
-
-			$gen3know = getGenCount($thirdList->getTotal());
-			
-			// Number of people, 3rd gen
-			$numPeople3 = count($thirdList->getTotal());
-			$htmlOut = str_replace("%3Genposs%", ($numFamilies*8), $htmlOut);
-			(($numFamilies*8) != 0)? $analysisFileOutput .= ($numFamilies*8).":" : $analysisFileOutput .= "N/A:";
-			$htmlOut = str_replace("%3Genknow%", $gen3know, $htmlOut);
-			($gen3know != 0)? $analysisFileOutput .= $gen3know.":" : $analysisFileOutput .= "N/A:";
-			$htmlOut = str_replace("%3Genuniq%", $numPeople3, $htmlOut);
-			($numPeople3 != 0)? $analysisFileOutput .= $numPeople3.":" : $analysisFileOutput .= "N/A:";
-			
-			$gen4know = getGenCount($fourthList->getTotal());
-
-			// Number of people, 4th gen
-			$numPeople4 = count($fourthList->getTotal());
-			$htmlOut = str_replace("%4Genposs%", ($numFamilies*16), $htmlOut);
-			(($numFamilies*16) != 0)? $analysisFileOutput .= ($numFamilies*16).":" : $analysisFileOutput .= "N/A:";
-			$htmlOut = str_replace("%4Genknow%", $gen4know, $htmlOut);
-			($gen4know != 0)? $analysisFileOutput .= $gen4know.":" : $analysisFileOutput .= "N/A:";
-			$htmlOut = str_replace("%4Genuniq%", $numPeople4, $htmlOut);
-			($numPeople4 != 0)? $analysisFileOutput .= $numPeople4.":" : $analysisFileOutput .= "N/A:";
+			$genFinder = new GenResultsFinder();
+			$genFinder->solve($firstList,1,$analysisFileOutput, $htmlOut,$numFamilies);
+			$genFinder->solve($secondList,2,$analysisFileOutput, $htmlOut,$numFamilies);
+			$genFinder->solve($thirdList,3,$analysisFileOutput, $htmlOut,$numFamilies);
+			$genFinder->solve($fourthList,4,$analysisFileOutput, $htmlOut,$numFamilies);
 			
 			// Start Mean Distance of migration matrix
 			$leanMeanDistanceFinder = new LeanMeanDistanceFinder();
@@ -797,7 +760,7 @@ function getTotalPeopleCount($famArray){
 			}
 	return $numPeople;		
 }
-function getGenCount($firstArray){
+/*function getGenCount($firstArray){
 	
 	$gen1know = 0;
 			foreach($firstArray as $person)
@@ -805,7 +768,7 @@ function getGenCount($firstArray){
 				$gen1know += $person->getNumChild();
 			}
 	return $gen1know;
-}
+}*/
 function getFileData($rootList){
 	$rootOut = "";
 	foreach($rootList as $p)
