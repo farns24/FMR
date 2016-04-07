@@ -6,57 +6,13 @@ class CAChrCalculator extends ChrFinder {
 	{
 		// We need to calculate the chr here before replacing the text of the html file or updating the map javascript files
 		// First, loop through the parents of the root and extract their birthplace iso
-		$parentISO = array();
-		foreach($arrayName as $person)
-		{
-			$ISO = $person->getBirthPlace()->ISO();
-			//echo $person->getId().", ".$ISO."<br />";
-			// ($ISO == -999 || $ISO == null)? $parentISO[] =  "Unknown":  $parentISO[] = $ISO;
-			if($ISO == -999) {
-				$parentISO[] =  "Unknown";
-				//echo "Unknown, ".$person->getId()."<br />";
-			}
-			elseif($ISO == null ) {
-				$parentISO[] = "Known unknown";
-				//echo "Known problem, ".$person->getId()."<br />";
-			}
-			else {
-				$parentISO[] = $ISO;
-				//echo "$ISO, ".$person->getId()."<br />";
-			}
-		}
-		// Next we need to aggregate duplicate values in the $parentISO array
-		$chrCount = count($parentISO);
-
-		$parentISO = @array_count_values($parentISO);
-		
-		// Associative array reverse sort
-		arsort($parentISO);
-		
-		//echo "<pre>";
-		//print_r($parentISO);
-		//echo "</pre>";
-		
+		$chrCount = 0;
+		$parentISO = $this-> findParentBirthPlaces($arrayName,$chrCount);
+		$chrrootArray = array();
+		$this->writeDataToFile($rFile,$chrCount,$chrrootArray,$parentISO);
 		// Now we open the .js file to write the dynamic data to it.
 		// Read in the text of the js so that we can manipulate it
-		$js = file_get_contents("data/v2/chr_map_data/$rFile.txt");
-		
-		$data = "data.addRows(".($chrCount).");";
-		$chrroot = "";
-		$chrrootArray = array();
 		// Place pointer back at begining of array
-		reset($parentISO);
-		$count = 0;
-		foreach($parentISO as $key => $val)
-		{
-			$data .= "data.setValue($count, 0, '".$key."');";
-			$data .= "data.setValue($count, 1, ".$val.");";
-			$percentage = number_format(($val/$chrCount)*100, 2, '.', '');
-			$chrrootArray["$key"] = $percentage;
-			$count++;
-		}
-		$js = str_replace("%data%", $data, $js);
-		file_put_contents("data/v2/chr_map_data/$rFile.js", $js);
 
 		$CALIFORNIA = 0;
 		$MEX = 0;

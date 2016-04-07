@@ -239,7 +239,14 @@
 						{
 							if (isset($place["normalized"]))
 							{
-								$placeNorm = $place["normalized"][0]["value"];
+								foreach($place["normalized"] as $value)
+								{
+									if (!empty($value["value"]))
+									{
+										$placeNorm = $value["value"];
+										break;
+									}
+								}
 							}
 							else
 							{
@@ -258,8 +265,6 @@
 							echo"</div>";
 						}
 					$w->endElement();
-				//$w->endElement();
-					
 			$w->endElement();
 		$w->endElement();		
 	$w->endElement();

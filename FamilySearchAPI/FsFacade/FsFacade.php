@@ -50,11 +50,6 @@ require_once('DynamicCache.php');
 				$url = $credentials["mainURL"]."platform/places/search?access_token=".$credentials["accessToken"]."&q=name:\"".$path."\"";
 				$response = $fsConnect->getFSXMLResponse($credentials,$url);
 		
-					//echo "<div class = 'well'>";
-					//echo $url;
-					//echo "<br/>";
-					//echo json_encode($response);
-					//echo "</div>";
 				$props = $response["entries"][0]["content"]["gedcomx"]["places"][0];
 				$id = $props["id"];
 				$lat = $props["latitude"];
@@ -62,7 +57,12 @@ require_once('DynamicCache.php');
 					//var_dump($props);
 					if ($id=="")
 					{
-						echo "Id not found";
+						echo "<div class = 'well'>";
+						echo $url;
+						echo "<br/>";
+						echo json_encode($response);
+						echo "</div>";
+						throw new Exception('emptyId');
 					}
 					else
 					{
@@ -72,6 +72,11 @@ require_once('DynamicCache.php');
 						$this->dao->insertISOLocation($id, $placeName, $lat, $lng, "-999");
 					}
 				}
+		if (empty($id))
+		{
+		
+			throw new Exception('emptyId');
+		}
 			return $id;
 		}
 		

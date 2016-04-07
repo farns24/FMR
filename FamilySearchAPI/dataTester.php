@@ -416,54 +416,16 @@ function dataTester($fileName,$credentials)
 			$analysisFileOutput .= $rcm4.":";
 
 	//########################################################################//
-			/* Refactor
-			* template method pattern to remove code duplication
-			*
-			*/
+	// Community Heritage Ratios
 			$chrSolver = null;
-			// Community Heritage Ratios
 			if($analysisFileName == "California.txt") {
 			$chrSolver = new CAChrCalculator();
-			/*
-				$chrroot1 = chr_calcCA($firstList->getTotal(), "r1", $analysisFileName);
-				$analysisFileOutput .= $chrroot1;
-				$chrroot2 = chr_calcCA($secondList->getTotal(), "r2", $analysisFileName);
-				$analysisFileOutput .= $chrroot2;
-				$chrroot3 = chr_calcCA($thirdList->getTotal(), "r3", $analysisFileName);
-				$analysisFileOutput .= $chrroot3;
-				$chrroot4 = chr_calcCA($fourthList->getTotal(), "r4", $analysisFileName);
-				$analysisFileOutput .= $chrroot4;
-				*/
 			}
 			elseif($analysisFileName == "CommunityHeritageRatioUS.txt"){
 			$chrSolver = new USChrCalculator();
-				/*
-				$chrroot1 = chr_calcUS($firstList->getTotal(), "r1", $analysisFileName);
-				$analysisFileOutput .= "\r\nFirst Generation\r\n";
-				$analysisFileOutput .= $chrroot1;
-				$chrroot2 = chr_calcUS($secondList->getTotal(), "r2", $analysisFileName);
-				$analysisFileOutput .= "Second Generation\r\n";
-				$analysisFileOutput .= $chrroot2;
-				$chrroot3 = chr_calcUS($thirdList->getTotal(), "r3", $analysisFileName);
-				$analysisFileOutput .= "Third Generation\r\n";
-				$analysisFileOutput .= $chrroot3;
-				$chrroot4 = chr_calcUS($fourthList->getTotal(), "r4", $analysisFileName);
-				$analysisFileOutput .= "Fourth Generation\r\n";
-				$analysisFileOutput .= $chrroot4;
-				*/
 			}
 			else {
 			$chrSolver = new ChrCalculator();
-				/*
-				$chrroot1 = chr_calc($firstList->getTotal(), "r1", $analysisFileName);
-				$analysisFileOutput .= $chrroot1;
-				$chrroot2 = chr_calc($secondList->getTotal(), "r2", $analysisFileName);
-				$analysisFileOutput .= $chrroot2;
-				$chrroot3 = chr_calc($thirdList->getTotal(), "r3", $analysisFileName);
-				$analysisFileOutput .= $chrroot3;
-				$chrroot4 = chr_calc($fourthList->getTotal(), "r4", $analysisFileName);
-				$analysisFileOutput .= $chrroot4;
-				*/
 			}
 			$chrSolver->solve($firstList,$secondList,$thirdList,$fourthList,$analysisFileName,$analysisFileOutput);
 
@@ -767,30 +729,7 @@ function getTotalPeopleCount($famArray){
 			}
 	return $numPeople;		
 }
-/*
-function getFileData($rootList){
-	$rootOut = "";
-	foreach($rootList as $p)
-	{
-		$rootOut .= $p->getId().",";
-	}
-	return $rootOut;
-}
-function storeGenerationData($rootList,$firstArray,$secondArray,$thirdArray,$fourthArray)
-{
-	$rootOut = getFileData($rootList);
-	file_put_contents("data/root.txt", $rootOut);
-	$firstOut = getFileData($firstArray);
-	file_put_contents("data/first.txt", $firstOut);
-	$secondOut =getFileData($secondArray);
-	file_put_contents("data/second.txt", $secondOut);
-	$thirdOut = getFileData($thirdArray);
-	file_put_contents("data/third.txt", $thirdOut);
-	$fourthOut = getFileData($fourthArray);
-	file_put_contents("data/fourth.txt", $fourthOut);
-	
-}
-*/
+
 function testSetChildren($test)
 {
 	$test["name"]= "";
