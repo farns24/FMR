@@ -253,8 +253,8 @@
 								$placeNorm = $place["original"];
 							}
 						
-						$pid = getPlaceId($placeNorm,$credentials);
-						$w->writeElement("original",$placeNorm);
+							$pid = getPlaceId($placeNorm,$credentials);
+							$w->writeElement("original",$placeNorm);
 							$w->startElement("normalized");
 							$w->writeAttribute("id",$pid);
 						}

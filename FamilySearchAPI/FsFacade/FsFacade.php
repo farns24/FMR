@@ -55,7 +55,7 @@ require_once('DynamicCache.php');
 				$lat = $props["latitude"];
 				$lng = $props["longitude"];
 					//var_dump($props);
-					if ($id=="")
+					if (empty($id))
 					{
 						echo "<div class = 'well'>";
 						echo $url;
