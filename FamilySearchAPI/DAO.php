@@ -22,7 +22,7 @@ class DAO {
 		}
 		else if (empty($param) and $param !='0' and $param!=0)
 		{
-			echo "<div class='well'>$param ==\"\"</div>";
+			echo "<div class='well'>$param ==\"\"</div></br>";
 			return false;
 		}
 		else if ($param == -999)

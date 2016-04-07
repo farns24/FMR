@@ -27,6 +27,7 @@ require_once("dataTesterFiles\meanDistance\MeanCenterFinder.php");
 require_once("dataTesterFiles\eventPlaceGenerator\BirthPlaceGenerator.php");
 require_once("dataTesterFiles\eventPlaceGenerator\DeathPlaceGenerator.php");
 require_once("dataTesterFiles\generationStats\GenResultsFinder.php");
+require_once("dataTesterFiles\FileManager.php");
 
 global $rootLatLonArray;
 
@@ -229,8 +230,8 @@ function dataTester($fileName,$credentials)
 				// Increment the counter
 				$famCount++;
 			}
-
-			storeGenerationData($rootList->getTotal(),$firstList->getTotal(),$secondList->getTotal(),$thirdList->getTotal(),$fourthList->getTotal());
+			$FMRfileManager = new FMRFileManager();
+			$FMRfileManager->storeGenerationData($rootList->getTotal(),$firstList->getTotal(),$secondList->getTotal(),$thirdList->getTotal(),$fourthList->getTotal());
 			//******************************************************************************//
 			// Second pass is completed.											//
 			// Statistical analysis of the generations can be performed.						//
@@ -415,10 +416,15 @@ function dataTester($fileName,$credentials)
 			$analysisFileOutput .= $rcm4.":";
 
 	//########################################################################//
-			
-			
+			/* Refactor
+			* template method pattern to remove code duplication
+			*
+			*/
+			$chrSolver = null;
 			// Community Heritage Ratios
 			if($analysisFileName == "California.txt") {
+			$chrSolver = new CAChrCalculator();
+			/*
 				$chrroot1 = chr_calcCA($firstList->getTotal(), "r1", $analysisFileName);
 				$analysisFileOutput .= $chrroot1;
 				$chrroot2 = chr_calcCA($secondList->getTotal(), "r2", $analysisFileName);
@@ -427,8 +433,11 @@ function dataTester($fileName,$credentials)
 				$analysisFileOutput .= $chrroot3;
 				$chrroot4 = chr_calcCA($fourthList->getTotal(), "r4", $analysisFileName);
 				$analysisFileOutput .= $chrroot4;
+				*/
 			}
 			elseif($analysisFileName == "CommunityHeritageRatioUS.txt"){
+			$chrSolver = new USChrCalculator();
+				/*
 				$chrroot1 = chr_calcUS($firstList->getTotal(), "r1", $analysisFileName);
 				$analysisFileOutput .= "\r\nFirst Generation\r\n";
 				$analysisFileOutput .= $chrroot1;
@@ -441,8 +450,11 @@ function dataTester($fileName,$credentials)
 				$chrroot4 = chr_calcUS($fourthList->getTotal(), "r4", $analysisFileName);
 				$analysisFileOutput .= "Fourth Generation\r\n";
 				$analysisFileOutput .= $chrroot4;
+				*/
 			}
 			else {
+			$chrSolver = new ChrCalculator();
+				/*
 				$chrroot1 = chr_calc($firstList->getTotal(), "r1", $analysisFileName);
 				$analysisFileOutput .= $chrroot1;
 				$chrroot2 = chr_calc($secondList->getTotal(), "r2", $analysisFileName);
@@ -451,7 +463,9 @@ function dataTester($fileName,$credentials)
 				$analysisFileOutput .= $chrroot3;
 				$chrroot4 = chr_calc($fourthList->getTotal(), "r4", $analysisFileName);
 				$analysisFileOutput .= $chrroot4;
+				*/
 			}
+			$chrSolver->solve($firstList,$secondList,$thirdList,$fourthList,$analysisFileName,$analysisFileOutput);
 
 			// Then we need to plug the percentage of each origin place into an HTML string
 			$htmlOut = str_replace("%chrroot1%", str_replace("\r\n", "</br>", $chrroot1), $htmlOut);
@@ -734,13 +748,6 @@ function processFamily($famCount,$fam,$famArray,$direction,$credentials)
 	
 }
 function addFileName($fileName,$analysisFileOutput){
-		/*
-			The commented code below was found when we took the project. we got a warning
-			that $analysisFileOutput was undefined and decided to make it an asignment rather than an appending in cases
-			where the $analysisFileOutput is null
-			
-			*/
-			//$analysisFileOutput .= $fileName.":";
 			if (isset($analysisFileOutput))
 			{
 				$analysisFileOutput .= $fileName.":";
@@ -760,15 +767,7 @@ function getTotalPeopleCount($famArray){
 			}
 	return $numPeople;		
 }
-/*function getGenCount($firstArray){
-	
-	$gen1know = 0;
-			foreach($firstArray as $person)
-			{
-				$gen1know += $person->getNumChild();
-			}
-	return $gen1know;
-}*/
+/*
 function getFileData($rootList){
 	$rootOut = "";
 	foreach($rootList as $p)
@@ -791,7 +790,7 @@ function storeGenerationData($rootList,$firstArray,$secondArray,$thirdArray,$fou
 	file_put_contents("data/fourth.txt", $fourthOut);
 	
 }
-
+*/
 function testSetChildren($test)
 {
 	$test["name"]= "";

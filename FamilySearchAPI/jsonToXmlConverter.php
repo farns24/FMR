@@ -80,7 +80,7 @@
 					}
 					if (count($json["facts"])==1)
 					{
-							writeDummyEvent($w);
+						writeDummyEvent($w);
 					}
 					
 				$w->endElement();
@@ -202,7 +202,7 @@
 				}
 					else
 					{
-							appState::$treeEnd++;
+						appState::$treeEnd++;
 					}
 				$w->endElement();
 			}
@@ -213,27 +213,49 @@
 	*
 	*/
 	function writeEvent($w,$type,$index,$json,$credentials){
+	
+	$facts = $json["facts"][$index];
+	$place = $facts["place"];
+	$placeNorm = "";
+	
 	$w->startElement("event");
 		$w->startElement("value");
 			$w->writeAttribute("type",$type);
 				$w->startElement("date");
-					if (isset($json["facts"][$index]["date"]["original"]))
+					if (isset($facts["date"]["original"]))
 					{
-						$w->writeElement("original",$json["facts"][$index]["date"]["original"]);
+						$w->writeElement("original",$facts["date"]["original"]);
 					}
 					//$w->endElement();
-					$w->writeElement("normalized",$json["facts"][$index]["date"]["normalized"][0]["value"]);
+					$w->writeElement("normalized",$facts["date"]["normalized"][0]["value"]);
 					//$w->endElement();
 					
 					
 					$w->endElement();
 					//Birth place
 					$w->startElement("place");
-						if (isset($json["facts"][$index]["place"]))
+						try{
+						if (isset($place))
 						{
-						$w->writeElement("original",$json["facts"][$index]["place"]["original"]);
+							if (isset($place["normalized"]))
+							{
+								$placeNorm = $place["normalized"][0]["value"];
+							}
+							else
+							{
+								$placeNorm = $place["original"];
+							}
+						
+						$pid = getPlaceId($placeNorm,$credentials);
+						$w->writeElement("original",$placeNorm);
 							$w->startElement("normalized");
-							$w->writeAttribute("id",getPlaceId($json["facts"][$index]["place"]["original"],$credentials));
+							$w->writeAttribute("id",$pid);
+						}
+						} catch (Exception $e) {
+							echo 'Caught exception: ',  $e->getMessage(), "\n";
+							echo "<div class ='well'>";
+							var_dump($place);
+							echo"</div>";
 						}
 					$w->endElement();
 				//$w->endElement();

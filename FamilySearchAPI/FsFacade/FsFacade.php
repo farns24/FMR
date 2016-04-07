@@ -15,6 +15,10 @@ require_once('DynamicCache.php');
 		
 		public function getId($placeName, $credentials)
 		{
+		if (empty($placeName))
+		{
+			throw new Exception('emptyId');
+		}
 		
 		$fsConnect = FmrFactory::createFsConnect();
 		$placeName = str_replace ("'","",$placeName);
@@ -29,7 +33,7 @@ require_once('DynamicCache.php');
 		else
 		{
 		
-			$row = $this->dao->fetchByName($name);
+			$row = $this->dao->fetchByName($placeName);
 					//Store result in posgress table
 				if($row[1] != null && $row[1] != "")
 				{
@@ -41,19 +45,20 @@ require_once('DynamicCache.php');
 				else
 				{
 			
-			
 				$path = urlencode($placeName);
 		
-					$url = $credentials["mainURL"]."platform/places/search?access_token=".$credentials["accessToken"]."&q=name:\"".$path."\"";
-						$response = $fsConnect->getFSXMLResponse($credentials,$url);
+				$url = $credentials["mainURL"]."platform/places/search?access_token=".$credentials["accessToken"]."&q=name:\"".$path."\"";
+				$response = $fsConnect->getFSXMLResponse($credentials,$url);
 		
 					//echo "<div class = 'well'>";
+					//echo $url;
+					//echo "<br/>";
 					//echo json_encode($response);
 					//echo "</div>";
-					$props = $response["entries"][0]["content"]["gedcomx"]["places"][0];
-					$id = $props["id"];
-					$lat = $props["latitude"];
-					$lng = $props["longitude"];
+				$props = $response["entries"][0]["content"]["gedcomx"]["places"][0];
+				$id = $props["id"];
+				$lat = $props["latitude"];
+				$lng = $props["longitude"];
 					//var_dump($props);
 					if ($id=="")
 					{
