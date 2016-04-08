@@ -34,6 +34,7 @@ require_once("FamilySearchAPI/preCondition.php");
 require_once("FamilySearchAPI/fmrFactory.php");
 require_once("FamilySearchAPI/FsSearcher/BackwardSearcher.php");
 require_once("FamilySearchAPI/FsSearcher/ForwardSearcher.php");
+require_once("FamilySearchAPI/cookie_utils/CookieManager.php");
 
 //*********************************************************//
 // Define variables to be used in login process and the main program //
@@ -192,18 +193,7 @@ switch($step)
 	}
 	$queryURL .= $place;
 	
-	//Store place in a cookie
-	setcookie('place', $place, time() + 18000);
-	setcookie('direction', $searchDirection, time() + 18000);
-	setcookie('city', $city, time() + 18000);
-	setcookie('county', $county, time() + 18000);
-	setcookie('country', $county, time() + 18000);
-	setcookie('project',$project,time() + 18000);
-	setcookie('state', $state, time() + 18000);
-	setcookie('searchSize', $max, time() + 18000);
-	setcookie('fileName', $fileName, time() + 18000);
-	setcookie('giveOrTake', $giveOrTake, time() + 18000);
-	setcookie('minGen', $minGen, time() + 18000);
+	new CookieManager()->saveForPrequery($place,$searchDirection,$city,$county,$counrty,$project,$state,$max,$fileName,$giveOrTake,$minGen);
 	$queryURL .= "\"%20";
 	
 	//form date query based on search type
@@ -257,31 +247,19 @@ _EndOfHTML2;
 	
   // FAMILYSEARCH.ORG API SEARCH AND PARSE CASE
   case('query'):
-  
+	$cookieManager = new CookieManager();
+	$queryPlace = $cookieManager->loadPlace();
+	$cookieManager->loadForQuery($credentials,$direction,$max,$minGen,$project,$fileName);
 	// Get cookie vars
-	$placeId = $_POST["place"];
-	$credentials["accessToken"] = $_COOKIE["accessToken"];	
-	$direction = $_COOKIE["direction"];
-	$max = $_COOKIE["searchSize"];
+	$placeId = $_POST["place"];	
 		// set up the xfmr variable to store the xml data to be used in the .fmr file to be saved from the query
 		$xfmr .= '<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE persons SYSTEM "FMRXML.dtd"><persons>';
-	
 		$event = $_POST['event'];
-	
 		// $place is the unique FS place ID
-		$place = $_COOKIE['place'];
 		$startYearOrig = $_POST['startyear'];
 		$startYear = $_POST['startyear'];
-		$state = $_COOKIE['state'];
-		$county = $_COOKIE['county'];
-		$country = $_COOKIE['country'];
-		$city = $_COOKIE['city'];
-		$project = $_COOKIE['project'];
-		$fileName = $_COOKIE['fileName'];
 		$searchancestors = $_POST['searchancestors'];
 		$placeId= $_POST['place'];
-		$minGen = $_COOKIE['minGen'];
-	
 		echo "Search for ancestors";
 		// print some HTML data
 		printHeader();
@@ -339,14 +317,8 @@ _EndOfHTML4;
 		
 		// Request the pedegree of each person in $personsFromPlace and then do a person read for each record in the returned pedigree.  Store the results in $personsPedigree array
 	// Only if "Include Ancestors" is checked
-		$myFile = $place.'~';
-	if(($city != '') && ($city != 'City')) $myFile .= $city.',';
-	if(($county != '') && ($county != 'County')) $myFile .= $county;
-	if(($state != '') && ($state != 'State')) $myFile .= ','.$state.'~';
-	$myFile .= $startYear;
-	$myFile .= $direction;
-	$myFile .= $fileName;
-	$myFile .= '.fmr';
+		
+	$myFile =$queryPlace->getFileName($startYear,$direction,$fileName);
 	
 	$XMLString = '<?xml version="1.0" encoding="UTF-8"?><place>';
 	$XMLString .= '<header><place><name>'.$place;
@@ -362,17 +334,11 @@ _EndOfHTML4;
 			$searcher = new ForwardSearcher();
 		}
 		
-		/*
-		Assert:
-		this array only holds people who have a valid location
-		*/
 		$persons = array();
 	
 		//Form the POST XML payload by passing user defined variables to function
 		$payload = createPOSTSearchPayload($_POST);
 		// Set URL
-	
-	
 		// Repeat POST request using contextID until all results returned (currently limited to 500)
 		// Set counter - counts by 40 (number of returned people in search)
 		$counter = 1;	
@@ -430,17 +396,17 @@ _EndOfHTML4;
 						}
 						else
 						{
-								if (sizeof($payload==0))
-								{
-									$totalResults = $counter + $searchCount-1;
-									echo "<div class='alert alert-info' role='alert'><b>Only $totalResults matches found</b></div>";
-									showSearchHelp();
-									break;
-								}
-								else
-								{
-									array_pop($payload);
-								}
+							if (sizeof($payload==0))
+							{
+								$totalResults = $counter + $searchCount-1;
+								echo "<div class='alert alert-info' role='alert'><b>Only $totalResults matches found</b></div>";
+								showSearchHelp();
+								break;
+							}
+							else
+							{
+								array_pop($payload);
+							}
 							
 						}
 					}
@@ -526,12 +492,7 @@ Return;
 // Data Display Case
   case('display'):
   	// Get cookie vars
-	$credentials["user"] = $_COOKIE["user"];
-	$credentials["password"] = $_COOKIE["password"];
-	$credentials["agent"] = $_COOKIE["agent"];
-	$credentials["sessionID"] = $_COOKIE["sessionID"];
-	$credentials["loggedOn"] = $_COOKIE["loggedOn"];
-	
+	new CookieManager()->loadFromCookies($credentials);
 	$fileName = $_POST['fileName'];
 
 	showDisplayScreenHeader();
@@ -600,23 +561,14 @@ HTML;
   // GOOGLE MAPS API INTERFACE CASE
   case('map'):
   	// Get cookie vars
-	$credentials["user"] = $_COOKIE["user"];
-	$credentials["password"] = $_COOKIE["password"];
-	$credentials["agent"] = $_COOKIE["agent"];
-	$credentials["sessionID"] = $_COOKIE["sessionID"];
-	$credentials["loggedOn"] = $_COOKIE["loggedOn"];
-	$fileName = $_COOKIE['fileName'];
+	new CookieManager()->loadForMaps($credentials,$fileName);
 	map($fileName);
 	break;
 	
 // LOGOUT CASE
   case('logout'):
   	// Get cookie vars
-	$credentials["user"] = $_COOKIE["user"];
-	$credentials["password"] = $_COOKIE["password"];
-	$credentials["agent"] = $_COOKIE["agent"];
-	$credentials["sessionID"] = $_COOKIE["sessionID"];
-	$credentials["loggedOn"] = $_COOKIE["loggedOn"];
+	new CookieManager()->loadFromCookies($credentials);
 	
 	$htmloutput =<<<EndOfHTML
 	</head>
@@ -676,7 +628,7 @@ Ascendancy Number: $asNum
 *     filePath - text  
 */
 function initDb(){
-	//FmrFactory::createDao()->clear();
+	//FmrFactory::createDao()->dbDump();
 };
 
 function insert_project($myFile,$project,$fileName)

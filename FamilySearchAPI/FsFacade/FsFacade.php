@@ -12,75 +12,94 @@ require_once('DynamicCache.php');
 			$this->fsConnect = FmrFactory::createFsConnect();
 			$this->cache = new DynamicCache();
 		}
-		
+		/**
+		* Gets Ids from Place Name
+		* @Pre- $placeName is not empty
+		* @Pre- $credentials are not empty
+		* @Post- $Id is not empty
+		*/
 		public function getId($placeName, $credentials)
 		{
-		if (empty($placeName))
-		{
-			throw new Exception('emptyId');
-		}
-		
-		$fsConnect = FmrFactory::createFsConnect();
-		$placeName = str_replace ("'","",$placeName);
-		
-		$id = "";
-		if (array_key_exists($placeName,appState::$idMap))
-		{
-			//echo "<h2>Duplicate found</h2>";
-			$id = appState::$idMap[$placeName];
+			if (empty($placeName))
+			{
+				throw new Exception('emptyId');
+			}
 			
-		}
-		else
-		{
-		
-			$row = $this->dao->fetchByName($placeName);
-					//Store result in posgress table
-				if($row[1] != null && $row[1] != "")
+			if (!isset($credentials))
+			{
+				throw new Exception('null Credentials');
+			}
+			
+			$fsConnect = FmrFactory::createFsConnect();
+			$placeName = str_replace ("'","",$placeName);
+			
+			$id = null;
+			if (array_key_exists($placeName,appState::$idMap))
+			{
+				//echo "<h2>Duplicate found</h2>";
+				$id = appState::$idMap[$placeName];
+				if (empty($id))
 				{
-					//echo "Using local db<br />";
-					$id = $row[1];
-					//echo "<h1>$id pulled from $placeName</h1>";
-					appState::$idMap[$placeName]=$id;
+			
+					throw new Exception('Cache corruption error');
 				}
-				else
-				{
+				$id = appState::$idMap[$placeName];
+				
+			}
+			else
+			{
 			
-				$path = urlencode($placeName);
-		
-				$url = $credentials["mainURL"]."platform/places/search?access_token=".$credentials["accessToken"]."&q=name:\"".$path."\"";
-				$response = $fsConnect->getFSXMLResponse($credentials,$url);
-		
-				$props = $response["entries"][0]["content"]["gedcomx"]["places"][0];
-				$id = $props["id"];
-				$lat = $props["latitude"];
-				$lng = $props["longitude"];
-					//var_dump($props);
-					if (empty($id))
+				$row = $this->dao->fetchByName($placeName);
+						//Store result in posgress table
+					if($row[1] != null && $row[1] != "")
 					{
-						echo "<div class = 'well'>";
-						echo $url;
-						echo "<br/>";
-						echo json_encode($response);
-						echo "</div>";
-						throw new Exception('emptyId');
+						//echo "Using local db<br />";
+						$id = $row[1];
+						//echo "<h1>$id pulled from $placeName</h1>";
+						if (!isset($id) || empty($id))
+						{
+			
+							throw new Exception('database Corruption error');
+						}
+						appState::$idMap[$placeName]=$id;
 					}
 					else
 					{
-						appState::$idMap[$placeName] = $id;
-					
-						//Store result in posgress table
-						$this->dao->insertISOLocation($id, $placeName, $lat, $lng, "-999");
+				
+					$path = urlencode($placeName);
+			
+					$url = $credentials["mainURL"]."platform/places/search?access_token=".$credentials["accessToken"]."&q=name:\"".$path."\"";
+					$response = $fsConnect->getFSXMLResponse($credentials,$url);
+			
+					$props = $response["entries"][0]["content"]["gedcomx"]["places"][0];
+					$id = $props["id"];
+					$lat = $props["latitude"];
+					$lng = $props["longitude"];
+						//var_dump($props);
+						if (empty($id))
+						{
+							echo "<div class = 'well'>";
+							echo $url;
+							echo "<br/>";
+							echo json_encode($response);
+							echo "</div>";
+							throw new Exception('emptyId');
+						}
+						else
+						{
+							appState::$idMap[$placeName] = $id;
+						
+							//Store result in posgress table
+							$this->dao->insertISOLocation($id, $placeName, $lat, $lng, "-999");
+						}
 					}
-				}
-		if (empty($id))
-		{
-		
-			throw new Exception('emptyId');
-		}
+			if (!isset($id) || empty($id))
+			{
+			
+				throw new Exception('emptyId');
+			}
 			return $id;
 		}
-		
-		
 		
 		}	
 		public function getLocation($placeId)
