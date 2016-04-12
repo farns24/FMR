@@ -35,6 +35,7 @@ require_once("FamilySearchAPI/fmrFactory.php");
 require_once("FamilySearchAPI/FsSearcher/BackwardSearcher.php");
 require_once("FamilySearchAPI/FsSearcher/ForwardSearcher.php");
 require_once("FamilySearchAPI/cookie_utils/CookieManager.php");
+require_once("FamilySearchAPI/model/QueryPlace.php");
 
 //*********************************************************//
 // Define variables to be used in login process and the main program //
@@ -52,10 +53,7 @@ $url = array(
 				'read'=>'platform/tree/person/');
 
 $credentials = array(// Production Key
-					//"key" => "DPYC-ZB7C-5M9N-M4PS-M8YJ-T6SB-H5VM-C658",
 					'key' => 'a0T3000000BZUxWEAX',
-					// Reference Key
-					//"key" => "WCQY-7J1Q-GKVV-7DNM-SQ5M-9Q5H-JX3H-CMJK",
 					'user' => '',
 					'password' => '',
 					'agent' => 'FMR/v1.0 (BYU-Geography)',
@@ -192,8 +190,8 @@ switch($step)
 		$place .= $country;
 	}
 	$queryURL .= $place;
-	
-	new CookieManager()->saveForPrequery($place,$searchDirection,$city,$county,$counrty,$project,$state,$max,$fileName,$giveOrTake,$minGen);
+	$cm = new CookieManager();
+	$cm->saveForPrequery($place,$searchDirection,$city,$county,$counrty,$project,$state,$max,$fileName,$giveOrTake,$minGen);
 	$queryURL .= "\"%20";
 	
 	//form date query based on search type
@@ -238,7 +236,7 @@ _EndOfHTML2;
 	}
 	else
 	{
-	echo "<h2>Sorry. No locations were found </h2>";
+		echo "<h2>Sorry. No locations were found </h2>";
 	}
 	
 	startLoader($fileName,$max);
@@ -492,7 +490,8 @@ Return;
 // Data Display Case
   case('display'):
   	// Get cookie vars
-	new CookieManager()->loadFromCookies($credentials);
+	$cm = new CookieManager();
+	$cm->loadFromCookies($credentials);
 	$fileName = $_POST['fileName'];
 
 	showDisplayScreenHeader();
@@ -561,14 +560,16 @@ HTML;
   // GOOGLE MAPS API INTERFACE CASE
   case('map'):
   	// Get cookie vars
-	new CookieManager()->loadForMaps($credentials,$fileName);
+	$cm =new CookieManager();
+	$cm->loadForMaps($credentials,$fileName);
 	map($fileName);
 	break;
 	
 // LOGOUT CASE
   case('logout'):
   	// Get cookie vars
-	new CookieManager()->loadFromCookies($credentials);
+	$cm = new CookieManager();
+	$cm->loadFromCookies($credentials);
 	
 	$htmloutput =<<<EndOfHTML
 	</head>
