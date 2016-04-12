@@ -16,6 +16,7 @@ require_once('DynamicCache.php');
 		* Gets Ids from Place Name
 		* @Pre- $placeName is not empty
 		* @Pre- $credentials are not empty
+		* @Pre- $credentials is an array
 		* @Post- $Id is not empty
 		*/
 		public function getId($placeName, $credentials)
@@ -25,7 +26,7 @@ require_once('DynamicCache.php');
 				throw new Exception('emptyId');
 			}
 			
-			if (!isset($credentials))
+			if (!isset($credentials)||!is_array($credentials))
 			{
 				throw new Exception('null Credentials');
 			}
@@ -93,9 +94,9 @@ require_once('DynamicCache.php');
 							$this->dao->insertISOLocation($id, $placeName, $lat, $lng, "-999");
 						}
 					}
-			if (!isset($id) || empty($id))
+			if (!isset($id) || empty($id)||!is_numeric($id))
 			{
-			
+				echo $id;
 				throw new Exception('emptyId');
 			}
 			return $id;
@@ -261,27 +262,50 @@ require_once('DynamicCache.php');
 				{
 					if (isset($latLngXML["entries"]))
 					{
-						
-						if (isset($latLngXML["entries"][0]))
+						$entries = $latLngXML["entries"];
+						if (isset($entries[0]) and isset($entries[0]["content"]["gedcomx"]["places"]))
 						{
-							
-							if (isset($latLngXML["entries"][0]["content"]["gedcomx"]["places"]))
-							{
 								
-								if (isset($latLngXML["entries"][0]["content"]["gedcomx"]["places"][0]))	
-								{
-									
-									return $latLngXML["entries"][0]["content"]["gedcomx"]["places"][0]["id"];
-								}
+							if (isset($entries[0]["content"]["gedcomx"]["places"][0]))	
+							{
+								return $entries[0]["content"]["gedcomx"]["places"][0]["id"];
 							}
+							
 						}
 					}
 				}
 				
 			return "";
 		}
+		/**
+		* @Pre $placeId is numeric
+		*
+		*/
+		public function loadChildrenPlaces($placeId,$credentials)
+		{
+			if (!is_numeric($placeId))
+			{
+				throw new Exception("Place id is not numeric");
+			}
+			$names = array();
+			$latLngURL = "https://familysearch.org/platform/places/description/$placeId/children?access_token=".$credentials['accessToken'];
+			$latLngXML = $this->fsConnect->getFSXMLResponse($credentials, $latLngURL);
+			//echo json_encode($latLngXML);
+			foreach ($latLngXML['places'] as $place)
+			{
+			
+				$fullName = $place["display"]["fullName"];
+				$fullName = urlencode($fullName);
+				//echo $place;
+				array_push($names, $fullName);
+				
+				$this->cache->add($place["id"],$fullName,$place["latitude"],$place["longitude"]);
+				$this->dao->insertISOLocation($place["id"], $fullName, $place["latitude"],$place["longitude"], "-999");
+			}
+			return $names;
+		}	
 	
 
-	}
+}
 
 ?>

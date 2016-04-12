@@ -27,10 +27,18 @@
 			$fileName = $_COOKIE['fileName'];
 		}
 		
+		/**
+		* @pre: direction set
+		* @pre: min Generation set
+		*
+		*/
 		public function saveForPrequery($place,$searchDirection,$city,$county,$counrty,$project,$state,$max,$fileName,$giveOrTake,$minGen)
 		{
+			if (!isset($searchDirection))
+			{
+				throw new Exception("Search direction not set");
+			}
 				//Store place in a cookie
-			
 			setcookie('direction', $searchDirection, time() + 18000);
 			setcookie('city', $city, time() + 18000);
 			setcookie('county', $county, time() + 18000);
@@ -40,6 +48,14 @@
 			setcookie('searchSize', $max, time() + 18000);
 			setcookie('fileName', $fileName, time() + 18000);
 			setcookie('giveOrTake', $giveOrTake, time() + 18000);
+			
+			
+			
+			if (!isset($minGen) || !is_numeric($minGen))
+			{
+				echo $minGen;
+				throw new Exception("Min Generation not set");
+			}
 			setcookie('minGen', $minGen, time() + 18000);
 		}
 		
