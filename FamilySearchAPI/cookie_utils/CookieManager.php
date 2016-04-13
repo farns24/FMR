@@ -65,8 +65,8 @@
 			$state = $_COOKIE['state'];
 			$county = $_COOKIE['county'];
 			$country = $_COOKIE['country'];
-			$place = $_COOKIE['place'];
-			$queryPlace = new QueryPlace($city,$county,$state,$country,$place);
+			$fullName = $_POST['fullName'];
+			$queryPlace = new QueryPlace($city,$county,$state,$country,$fullName);
 			return $queryPlace;
 		}
 	}
