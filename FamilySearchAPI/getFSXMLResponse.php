@@ -42,7 +42,7 @@ class FsConnect{
 				echo $credentials["statusCode"];
 				break;
 			}
-			if($credentials["statusCode"] == 503)
+			if($credentials["statusCode"] == 492)
 			{
 				sleep($waitTime);
 				if($waitTime < 31)
@@ -83,7 +83,7 @@ class FsConnect{
 			}
 			// If the HTTP status code is FS 503 - "Not enough time between queries" - perform FS recommended wait proceedure
 			// FS wait proceedure - wait 1, 2, 4, 8, 16, 32 seconds.  Max wait time is 32 seconds.  If reached, program waits 32 sec until response is not 503.
-			if($credentials["statusCode"] == 503)
+			if($credentials["statusCode"] == 492)
 			{
 				sleep($waitTime);
 				if($waitTime <= $MAXWAITTIME)

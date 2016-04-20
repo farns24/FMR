@@ -1,5 +1,22 @@
 <?php
 require_once('DynamicCache.php');
+include_once("/../fmrFactory.php");
+
+	/**
+	* Fs Facade wraps the persistance subsystem for family search information. It allows for one place for the program to go to to get information
+	* From family search. 
+	*
+	* There are 3 places where information can be pulled. 
+	*
+	* The first is the family search databases. These are accessed through the FamilySearch web api. They are the largest 
+	* collection of information. They are also the slowest to access. 
+	* 
+	* The second is through the Local Postgress Database. When places are found in searches, they are stored in the database for future reference.
+	* The Database is quicker to access, but contains less data.
+	*
+	* Finally, the Dynamic Memory Cache of place information. It is the fastest to access. NOTE: Due to memory leaks, the Dynamic Memory Cache has been disabled. 
+	* Plans have been made to make the cache regulate its own size. Until work is completed on that, The Database and Family search are the only places to acces memory
+	*/
 	class FsFacade {
 	
 			private $dao = null;
@@ -34,35 +51,41 @@ require_once('DynamicCache.php');
 			$fsConnect = FmrFactory::createFsConnect();
 			$placeName = str_replace ("'","",$placeName);
 			
-			$id = null;
-			if (array_key_exists($placeName,appState::$idMap))
+			//$id = null;
+			if ($this->cache->hasName($placeName))
 			{
 				//echo "<h2>Duplicate found</h2>";
-				$id = appState::$idMap[$placeName];
-				if (empty($id))
+
+				$id = $this->cache->getId($placeName);
+				if (empty($id) ||!is_numeric($id))
 				{
 			
 					throw new Exception('Cache corruption error');
 				}
-				$id = appState::$idMap[$placeName];
 				
+				//echo "<H1>Returned from Cache</H1>";
+				return $id;
 			}
 			else
 			{
 			
 				$row = $this->dao->fetchByName($placeName);
 						//Store result in posgress table
-					if($row[1] != null && $row[1] != "")
+					if(is_numeric($row[1]))
 					{
 						//echo "Using local db<br />";
 						$id = $row[1];
 						//echo "<h1>$id pulled from $placeName</h1>";
-						if (!isset($id) || empty($id))
+						if (!isset($id) || empty($id) ||!is_numeric($id))
 						{
 			
 							throw new Exception('database Corruption error');
 						}
-						appState::$idMap[$placeName]=$id;
+
+							$this->cache->add($id,$row[4],$row[2],$row[3],$placeName);
+						
+					//	echo "<H1>Returned from DB</H1>";
+						return $id;
 					}
 					else
 					{
@@ -88,7 +111,8 @@ require_once('DynamicCache.php');
 						}
 						else
 						{
-							appState::$idMap[$placeName] = $id;
+
+							$this->cache->add($id,"-999",$lat,$lng,$placeName);
 						
 							//Store result in posgress table
 							$this->dao->insertISOLocation($id, $placeName, $lat, $lng, "-999");
@@ -99,10 +123,19 @@ require_once('DynamicCache.php');
 				echo $id;
 				throw new Exception('emptyId');
 			}
+			//echo "<H1>Returned from FS</H1>";
 			return $id;
 		}
 		
-		}	
+		}
+		
+		/**
+		* gets location from place id.
+		* Searches Memory Cache first, then Database, then Family Search API
+		* @param $placeId 
+		* @return place that matches that id
+		* @throws Place Not Found Exception.
+		*/
 		public function getLocation($placeId)
 		{
 			$result = array();
@@ -145,7 +178,7 @@ require_once('DynamicCache.php');
 					$result[1] = $fsresult["lon"];
 					$result[2] = $fsresult["iso"];
 
-					$this->cache->add($placeId,$result["iso"],$result["lat"],$result["lon"]);
+					$this->cache->add($placeId,$result["iso"],$result["lat"],$result["lon"],$pName);
 					
 				}
 				//var_dump($result);
@@ -153,7 +186,14 @@ require_once('DynamicCache.php');
 			}
 		}
 		
-		
+		/**
+		* Pulls Place from family Search by id. 
+		*
+		* @param placeId - Id of Place
+		* @param credentials - Array of login details
+		* @param pName - Name of place: can be used to search by name if id is depricated.
+		*
+		*/
 		public function getPlaceFromFS($placeId,$credentials,$pName) {
 				$credentials = array();
 			
@@ -205,8 +245,10 @@ require_once('DynamicCache.php');
 			return $placeArray;
 		}
 	
-			public function getLatLonFromRequest(&$lat,&$lon,$latLngXML,&$insertFlag, &$iso, &$key,&$normalized,$latLngURL,$pName)
-		 {
+	/**
+	* Gets Latitude and Longitud from response from family search
+	*/
+	public function getLatLonFromRequest(&$lat,&$lon,$latLngXML,&$insertFlag, &$iso, &$key,&$normalized,$latLngURL,$pName){
 			 if (sizeof($latLngXML[places])>0)
 			{
 				
@@ -248,7 +290,7 @@ require_once('DynamicCache.php');
 			 
 		 }
 		 /**
-		*
+		* finds Id From name of place
 		*/
 		public function getIdFromName($pName,$credentials)
 		{
@@ -281,29 +323,64 @@ require_once('DynamicCache.php');
 		* @Pre $placeId is numeric
 		*
 		*/
-		public function loadChildrenPlaces($placeId,$credentials)
+		public function loadChildrenPlaces($placeId,$credentials,&$names)
 		{
 			if (!is_numeric($placeId))
 			{
 				throw new Exception("Place id is not numeric");
 			}
-			$names = array();
+			
 			$latLngURL = "https://familysearch.org/platform/places/description/$placeId/children?access_token=".$credentials['accessToken'];
 			$latLngXML = $this->fsConnect->getFSXMLResponse($credentials, $latLngURL);
 			//echo json_encode($latLngXML);
-			foreach ($latLngXML['places'] as $place)
+			if (isset($latLngXML['places']) && count($latLngXML['places'])>0)
 			{
-			
-				$fullName = $place["display"]["fullName"];
-				$fullName = urlencode($fullName);
-				//echo $place;
-				array_push($names, $fullName);
+				foreach ($latLngXML['places'] as $place)
+				{
 				
-				$this->cache->add($place["id"],$fullName,$place["latitude"],$place["longitude"]);
-				$this->dao->insertISOLocation($place["id"], $fullName, $place["latitude"],$place["longitude"], "-999");
+					$fullName = $place["display"]["fullName"];
+					$fullName = urlencode($fullName);
+					//echo $fullName;
+					array_push($names, $fullName);
+					
+					$this->cache->add($place["id"],$fullName,$place["latitude"],$place["longitude"],$fullName);
+					$this->dao->insertISOLocation($place["id"], $fullName, $place["latitude"],$place["longitude"], "-999");
+					
+					$this->loadChildrenPlaces($place["id"],$credentials,$names);
+				}
 			}
-			return $names;
 		}	
+	
+	/**
+	* @pre: url is not empty
+	* @post: SearchCount must be non 0 by the end
+	*/
+	public function getRootGeneration($url,&$searchCount,$credentials,$payload)
+	{
+		if (empty($url))
+		{
+			throw new Exception("Empty URL Exception");
+		}
+		
+		$rawResponse =  $this->fsConnect->getFSXMLPOSTResponse($url, end($payload), $credentials);
+		
+		$response = json_decode($rawResponse,true);//this is important
+		// Do a person read for each person returned
+		//echo "$rawResponse";
+		$url = $response['links']['next']['href'];
+		
+		// The number of people returned in search
+		$searchCount = sizeof($response['entries'],0);
+		
+		if ($searchCount == 0)
+		{
+			throw new Exception("No Search Results found exception");
+		}
+		
+		error_log("$searchCount Search results Found");
+		//exit();
+		return $response;
+	}
 	
 
 }

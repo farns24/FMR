@@ -5,9 +5,11 @@
 // Supervisor: Dr. Samuel Otterstrom
 // Title: HTMLMenu.php
 // Purpose: Creates and echos to the browser HTML menu and output for user interfacing
+include_once("view\HeaderShower.php");
 
 function HTMLMenu($JSONStatusCode, $json)
 {
+$headerShwr = new HeaderShower();
 switch($JSONStatusCode)
 {
   case('200'):
@@ -75,32 +77,24 @@ switch($JSONStatusCode)
 	</head>
 	<body>
 	<header>
-			<p class="title">
-			BYU Family Migration Research
-			<br />
-			<sub class="header">
-				Modeling Large-Scale Historical Migration Patterns Using Family History Records
-			</sub>
-			<div id="logout">
-				<form action="BYUFMR.php" method="post">
-					<input type="hidden" name="step" value="logout" />
-					<button type="submit" value="Logout">Logout</button>
-				</form>
-			</div>
-		</p>
-	<div class="userWelcome well">Welcome,
 EndOfHTML;
+	$headerShwr->show();
+	echo "<div class='userWelcome well'>Welcome,";
+
 	echo $htmloutput;
-	echo ' '.$json['users'][0]['displayName'].'. <div><br/> </header>
+	echo ' '.$json['users'][0]['displayName'].'. </div><br/> </header>
 	
 					<dialog id="loadingAnalysis">
-					<h3>Please Wait as we Perform the search</h3>
+					<h3>Please wait as we perform the search...</h3>
 					
 						<div class="progress">
 						
 							<div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax=$max style="width: 100%">
 								<span class="sr-only">100% Complete (success)</span>
 							</div>
+						</div>
+						<div id="loading_meme">
+							<img src="/img/loading_egg.jpg"/>
 						</div>
 					
 					</dialog>	
@@ -139,6 +133,7 @@ EndOfHTML;
 						<form action="BYUFMR.php" method="post">
 						<div >
 						<div class="alert alert-info" role="alert"><Strong>Cookies Must Be enabled</Strong>';
+						
 	$htmloutput =<<<EndOfHTML
 	<p>If you don't know if your cookies are enabled, follow the links for help</p>
 	<ul>
@@ -339,81 +334,61 @@ EndOfHTML;
 	echo $htmloutput;
 	break;
   case('400'):
-	echo '<p class="title">BYU Family Migration Research<br />';
-	echo '<sub class="header">Modeling Large-Scale Historical Migration Patterns Using Family History Records</sub><div id="logout"><form action="BYUFMR.php" method="post">';
-	echo '<input type="hidden" name="step" value="logout" /><button type="submit" value="Logout">Logout</button></form></div></p>';
+	$headerShwr->show();
 	echo '<p class="loginError"><img class="floatLeft" src="http://webmap.geog.byu.edu/fmr/img/warning.png" />Sorry, Family Search recieved a bad request.';
 	echo "<br />Please contact BYU Family Migration Research for assistance.<br />";
 	echo '<br />Error Reference '.$json['statusCode'].'.</p>';
 	break;
   case('401'):
-	echo '<p class="title">BYU Family Migration Research<br />';
-	echo '<sub class="header">Modeling Large-Scale Historical Migration Patterns Using Family History Records</sub><div id="logout"><form action="BYUFMR.php" method="post">';
-	echo '<input type="hidden" name="step" value="logout" /><button type="submit" value="Logout">Logout</button></form></div></p>';
+	$headerShwr->show();
 	echo '<p class="loginError"><img class="floatLeft" src="http://webmap.geog.byu.edu/fmr/img/warning.png" />Sorry, Your credentials were not accepted or your session timmed out.';
 	echo "<br />Be sure to enter your Username and Password for FamilySearch.org as your login credentials and login again.<br />";
 	echo '<br />Error Reference '.$json['statusCode'].'.</p>';
 	break;
   case('403'):
-	echo '<p class="title">BYU Family Migration Research<br />';
-	echo '<sub class="header">Modeling Large-Scale Historical Migration Patterns Using Family History Records</sub><div id="logout"><form action="BYUFMR.php" method="post">';
-	echo '<input type="hidden" name="step" value="logout" /><button type="submit" value="Logout">Logout</button></form></div></p>';
+	$headerShwr->show();
 	echo '<p class="loginError"><img class="floatLeft" src="http://webmap.geog.byu.edu/fmr/img/warning.png" />Sorry, Family Search will not allow you to access this information.';
 	echo "<br />Please contact BYU Family Migration Research for assistance.<br />";
 	echo '<br />Error Reference '.$json['statusCode'].'.</p>';
 	break;
   case('404'):
-	echo '<p class="title">BYU Family Migration Research<br />';
-	echo '<sub class="header">Modeling Large-Scale Historical Migration Patterns Using Family History Records</sub><div id="logout"><form action="BYUFMR.php" method="post">';
-	echo '<input type="hidden" name="step" value="logout" /><button type="submit" value="Logout">Logout</button></form></div></p>';
+	$headerShwr->show();
 	echo '<p class="loginError"><img class="floatLeft" src="http://webmap.geog.byu.edu/fmr/img/warning.png" />Sorry, Family Search can not find this information.';
 	echo "<br />Please contact BYU Family Migration Research for assistance.<br />";
 	echo '<br />Error Reference '.$json['statusCode'].'.</p>';
 	break;
   case('409'):
-	echo '<p class="title">BYU Family Migration Research<br />';
-	echo '<sub class="header">Modeling Large-Scale Historical Migration Patterns Using Family History Records</sub><div id="logout"><form action="BYUFMR.php" method="post">';
-	echo '<input type="hidden" name="step" value="logout" /><button type="submit" value="Logout">Logout</button></form></div></p>';
+	$headerShwr->show();
 	echo '<p class="loginError"><img class="floatLeft" src="http://webmap.geog.byu.edu/fmr/img/warning.png" />Sorry, Family Search can not perform this action.';
 	echo "<br />Please contact BYU Family Migration Research for assistance.<br />";
 	echo '<br />Error Reference '.$json['statusCode'].'.</p>';
 	break;
   case('410'):
-	echo '<p class="title">BYU Family Migration Research<br />';
-	echo '<sub class="header">Modeling Large-Scale Historical Migration Patterns Using Family History Records</sub><div id="logout"><form action="BYUFMR.php" method="post">';
-	echo '<input type="hidden" name="step" value="logout" /><button type="submit" value="Logout">Logout</button></form></div></p>';
+	$headerShwr->show();
 	echo '<p class="loginError"><img class="floatLeft" src="http://webmap.geog.byu.edu/fmr/img/warning.png" />Sorry, Family Search can not find this resource.';
 	echo "<br />Please contact BYU Family Migration Research for assistance.<br />";
 	echo '<br />Error Reference '.$json['statusCode'].'.</p>';
 	break;
   case('430'):
-	echo '<p class="title">BYU Family Migration Research<br />';
-	echo '<sub class="header">Modeling Large-Scale Historical Migration Patterns Using Family History Records</sub><div id="logout"><form action="BYUFMR.php" method="post">';
-	echo '<input type="hidden" name="step" value="logout" /><button type="submit" value="Logout">Logout</button></form></div></p>';
+	$headerShwr->show();
 	echo '<p class="loginError"><img class="floatLeft" src="http://webmap.geog.byu.edu/fmr/img/warning.png" />Sorry, Family Search recognizes this as a incorrect version of the object.';
 	echo "<br />Please contact BYU Family Migration Research for assistance.<br />";
 	echo '<br />Error Reference '.$json['statusCode'].'.</p>';
 	break;
   case('431'):
-	echo '<p class="title">BYU Family Migration Research<br />';
-	echo '<sub class="header">Modeling Large-Scale Historical Migration Patterns Using Family History Records</sub><div id="logout"><form action="BYUFMR.php" method="post">';
-	echo '<input type="hidden" name="step" value="logout" /><button type="submit" value="Logout">Logout</button></form></div></p>';
+	$headerShwr->show();
 	echo '<p class="loginError"><img class="floatLeft" src="http://webmap.geog.byu.edu/fmr/img/warning.png" />Sorry, Family Search recognizes this as an invalid developer key.';
 	echo "<br />Please contact BYU Family Migration Research for assistance.<br />";
 	echo '<br />Error Reference '.$json['statusCode'].'.</p>';
 	break;
   case('500'):
-	echo '<p class="title">BYU Family Migration Research<br />';
-	echo '<sub class="header">Modeling Large-Scale Historical Migration Patterns Using Family History Records</sub><div id="logout"><form action="BYUFMR.php" method="post">';
-	echo '<input type="hidden" name="step" value="logout" /><button type="submit" value="Logout">Logout</button></form></div></p>';
+	$headerShwr->show();
 	echo '<p class="loginError"><img class="floatLeft" src="http://webmap.geog.byu.edu/fmr/img/warning.png" />Sorry, Family Search has a server error.<br />';
 	echo "<br />Please contact BYU Family Migration Research for assistance.";
 	echo '<br />Error Reference '.$json['statusCode'].'.</p>';
 	break;
   case('503'):
-	echo '<p class="title">BYU Family Migration Research<br />';
-	echo '<sub class="header">Modeling Large-Scale Historical Migration Patterns Using Family History Records</sub><div id="logout"><form action="BYUFMR.php" method="post">';
-	echo '<input type="hidden" name="step" value="logout" /><button type="submit" value="Logout">Logout</button></form></div></p>';
+	$headerShwr->show();
 	echo '<p class="loginError"><img class="floatLeft" src="http://webmap.geog.byu.edu/fmr/img/warning.png" />Sorry, the Family Search system is currently down.';
 	echo "<br />Please try again at a later time.<br />";
 	echo '<br />Error Reference '.$json['statusCode'].'.</p>';

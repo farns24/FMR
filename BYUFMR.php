@@ -1,6 +1,4 @@
 <?php
-
-
 // NEW FMR APPLICATION CODE - USES POST QUERY METHOD
 // BYU Family Migration Research Main Script
 // Author: Brian Bunker, Mike Farnsworth
@@ -13,6 +11,23 @@
 //*************************************************//
 // Display the document DOCTYPE and head to the browser //
 //*************************************************//
+ini_set("log_errors", 1);
+ini_set('display_errors', 0);
+ini_set('display_startup_errors', TRUE);
+error_reporting(E_ALL & ~E_NOTICE);
+ini_set("error_log", "/web/fmr/logs/php-error.log");
+
+function shutdown()
+{
+    // This is our shutdown function, in 
+    // here we can do any last operations
+    // before the script is complete.
+
+   error_log("Script Terminated");
+}
+
+register_shutdown_function('shutdown');
+
 
 // Set the timeout limit to be infinite so that the queries can work until complete
 set_time_limit (0);
@@ -36,6 +51,8 @@ require_once("FamilySearchAPI/FsSearcher/BackwardSearcher.php");
 require_once("FamilySearchAPI/FsSearcher/ForwardSearcher.php");
 require_once("FamilySearchAPI/cookie_utils/CookieManager.php");
 require_once("FamilySearchAPI/model/QueryPlace.php");
+require_once("FamilySearchAPI/FsSearcher/EntryProcessor.php");
+require_once("FamilySearchAPI/view/HeaderShower.php");
 
 //*********************************************************//
 // Define variables to be used in login process and the main program //
@@ -94,7 +111,7 @@ if (isset($_GET['code']) && $step == 'authenticate')
 $xfmr = '';
 $xfmrCurrentEvent = '';
 $fsConnect = FmrFactory::createFsConnect();
-
+$headerShower = new HeaderShower();
 initDb();
 //********************************//
 // MAIN PROGRAM FUNCTIONALITY//
@@ -335,41 +352,35 @@ _EndOfHTML4;
 		$persons = array();
 	
 		//Form the POST XML payload by passing user defined variables to function
-		$payload = createPOSTSearchPayload($_POST);
+		$fsFacade = FmrFactory::getFacade();
+		$payload = createPOSTSearchPayload($_POST,$fsFacade,$credentials,$placeId);
 		// Set URL
 		// Repeat POST request using contextID until all results returned (currently limited to 500)
 		// Set counter - counts by 40 (number of returned people in search)
 		$counter = 1;	
 		
 		//Blank first time through loop. constructed and used second time through loop
-		appState::$context = "";
+		$context = "";
 		
 		//first sample pull url 
-		$url = $mainURL.'platform/tree/search?count=40&'.appState::$context.'start=0&';	
-		
+		$url = $mainURL.'platform/tree/search?count=40&'.$context.'start=0&';	
+		$entryProcessor = new EntryProcessor();
 		//While pulled people is smaller or equal to those pulled.
 			do
 			{
-					
+				error_log("Processing Root Generation Member $counter of $max");
+				
                 try {
 					
 					if ($counter<$max)
 					{
+						$response = $fsFacade->getRootGeneration($url,$searchCount,$credentials,$payload);
 						
-						$rawResponse = $fsConnect->getFSXMLPOSTResponse($url, end($payload), $credentials);
-						
-						$response = json_decode($rawResponse,true);//this is important
-						// Do a person read for each person returned
-
-						$url = $response['links']['next']['href'];
-						
-						// The number of people returned in search
-						$searchCount = sizeof($response['entries'],0);
-						
-
 						// Loop through each record from the first response
 						if ($searchCount>0)
 						{
+							
+							
 							if ($searchCount<40 && ($max - $counter)>40)
 							{
 								updatePayload($payload,$counter);
@@ -378,41 +389,33 @@ _EndOfHTML4;
 							//For each person in the search
 							foreach($response['entries'] as $search)
 							{
-								
-								$searchedPerson = $search['content']['gedcomx']['persons'][0];
-								// Increment the counter
-							
+								error_log("Attempting to Process Entry");
+								$entryProcessor->process($search,$counter,$credentials,$XMLString,$mainURL,$direction,$minGen,$fsConnect,$searcher,$persons,$max);
 								if ($counter>$max)
 								{
 									break;
 								}
-								
-								 processPerson($counter,$persons,$credentials,$searchedPerson,$XMLString,$mainURL,$direction,$minGen,$fsConnect,$searcher);
-							
 							}
 							
 						}
 						else
 						{
-							if (sizeof($payload==0))
-							{
-								$totalResults = $counter + $searchCount-1;
-								echo "<div class='alert alert-info' role='alert'><b>Only $totalResults matches found</b></div>";
-								showSearchHelp();
-								break;
-							}
-							else
-							{
-								array_pop($payload);
-							}
 							
+							updatePayload($payload,$counter);
 						}
+					}
+					else
+					{
+						break;
 					}
 				}
 				catch(Exception $e)
 				{
-					echo "<h2>Error thrown in search</h2>";
+					error_log("Error thrown in search");
+					error_log('Caught exception: '.  $e->getMessage());
+					$counter++;
 				    continue;
+					
 				}
 				//throw new Exception("Break here");
 			}
@@ -423,7 +426,6 @@ _EndOfHTML4;
 			$placePersonsPedigree = array();
 			$pedigreeURL = $mainURL.'platform/tree/ancestry/';
 			//$personFromPlaceIndex = 0;
-			
 		}	
 
 		$XMLString .= '</place>';
@@ -515,6 +517,14 @@ Return;
 		<span class="sr-only">Loading</span>
 		</div>
 	</div>
+	<div class='well'>
+	<h4>"... the work of patience boils down to this:<br>
+	keep the commandments; trust in God, our Heavenly Father; <br>
+	serve Him with meekness <br>
+	and Christlike love; exercise faith and hope in the Savior; <br>
+	and never give up." -President Dieter F. Uchtdorf</h4>
+	<img src="./img/marshmallow.jpg"/><br/>
+	</div>
 	<a target="_blank" href="https://qtrial2016q1az1.az1.qualtrics.com/jfe/form/SV_cHfztzsZL8W5XnL" class="btn btn-default">While you are waiting, do you mind filling out a quick survey on this web app?</a>
 	
 	<body onLoad="mail.submit()">
@@ -539,7 +549,7 @@ HTML;
 
 	$credentials["agent"] = $_COOKIE["agent"];
 	$credentials["accessToken"] = $_COOKIE["accessToken"];
-	$credentials["loggedOn"] =TRUE;// $_COOKIE["loggedOn"];
+	$credentials["loggedOn"] = TRUE;// $_COOKIE["loggedOn"];
 	
 	
 	$fileName = $_COOKIE['fileName'];
@@ -571,21 +581,11 @@ HTML;
 	$cm = new CookieManager();
 	$cm->loadFromCookies($credentials);
 	
-	$htmloutput =<<<EndOfHTML
-	</head>
-	<body>
-		<p class="title">
-			BYU Family Migration Research
-			<br />
-			<sub class="header">
-				Modeling Large-Scale Historical Migration Patterns Using Family History Records
-			</sub>
-		</p>
-EndOfHTML;
+	$headerShower->show();
 	$credentials = logOut($mainURL, $credentials);
 	if($credentials["loggedOn"] == FALSE)
 	{
-		$htmloutput .= '<p class="userWelcome">You have been successfully logged out.</p>';
+		$htmloutput = '<p class="userWelcome">You have been successfully logged out.</p>';
 	}
 	echo $htmloutput;
   
@@ -629,6 +629,7 @@ Ascendancy Number: $asNum
 *     filePath - text  
 */
 function initDb(){
+	//FmrFactory::createDao()->clean();
 	//FmrFactory::createDao()->dbDump();
 };
 
@@ -658,56 +659,10 @@ function create_project($projectName)
 /**
 *
 *
-*
 */
-function getXMLOfAncestors($person,$personFromPlaceIndex,$direction,$credentials,$mainURL,&$maxGen,&$html,&$fsConnect,&$searcher)
+function updatePayload(&$payload,&$counter)
 {
-	$id = $person["id"];
-				$stats = getStats($person);
-				$lineNum = $personFromPlaceIndex+1;
-				
-				$html.="<h3>Root Member $lineNum</h3><div class='sortMe'> <a class = 'searchIcon' data-number='4' target='_blank' href='https://familysearch.org/tree/#view=tree&section=pedigree&person=$id'><img id='expImg' src=\"img/Root.png\" title=$stats height=\"20\" width=\"20\" /></a>";
-				 
-						
-				$placesMap = array();
-				
-				$ancestors = array();
-				$generation = 0;
-				$searcher->solve($ancestors,$mainURL,$credentials,$person,$fsConnect,$generation,$maxGen,$html);
-				
-				$html.="</div>";
-				$personsPedigree = $searcher->getRelatives($ancestors);
-				
-			
-			
-				// Insert the current personsPedigree array into the placePersonsPedigree array
-	
-					$XMLString = '<family>';
-					foreach($personsPedigree as $person)
-					{
-						$gen= $searcher->getMaxGen($person,$maxGen);
-						
-						if ($gen>$maxGen)
-						{
-							$maxGen = $gen;
-						}
-						
-						$XMLString .= convertToXml($person,$credentials,$mainURL,$direction);//->asXML();
-						
-					}
-					$XMLString .= '</family>';
-					$XMLString = strtr($XMLString,'<family></family>', "" );
-					return $XMLString;
-	
-}
-
-/**
-*
-*
-*/
-function updatePayload(&$payload,$counter)
-{
-	if (sizeof($payload==0))
+	if (count($payload)==0)
 	{
 		$totalResults = $counter + $searchCount-1;
 			echo "<div class='alert alert-info' role='alert'><b>Only $totalResults matches found</b></div>";
@@ -715,38 +670,9 @@ function updatePayload(&$payload,$counter)
 	}
 	else
 	{
-	array_pop($payload);
+		array_pop($payload);
 	}
 }
 
-function processPerson(&$counter,&$persons,$credentials,$searchedPerson,&$XMLString,$mainURL,$direction,$minGen,&$fsConnect,&$searcher)
-{
-	$html = "";
-	$queryURL =$searchedPerson['links']['person']['href'];
-	$personReadResponse = $fsConnect->getFSXMLResponse($credentials, $queryURL);
-	unset($queryURL);
-
-	$person = $personReadResponse['persons'][0];							
-	if (meetsReqs($person,$direction,$place))
-	{
-		
-		$maxGen = 0;	
-		
-		$partialXML = getXMLOfAncestors($person,$counter,$direction,$credentials,$mainURL,$maxGen,$html,$fsConnect,$searcher);							
-									
-		
-		//Test partial XML
-		//echo $maxGen;
-		if ($maxGen >=$minGen)
-		{
-		array_push($persons,$person);// as $person
-		echo $html;
-		$html = "";
-		$counter++;
-		$XMLString.=$partialXML;
-		}
-	}
-
-}
 
 ?>

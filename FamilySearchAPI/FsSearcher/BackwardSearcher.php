@@ -1,5 +1,9 @@
 <?php
 require_once("ISearcher.php");
+
+/**
+* Searches for ancsetors of a provided person up to four generations. Extends ISearcher Abstract Class.
+*/
 class BackwardSearcher extends ISearcher {
 	
 	public function solve(&$ancestors,$mainURL,$credentials,$person,&$fsConnect,$generation,&$maxGen,&$html) 
@@ -51,7 +55,7 @@ class BackwardSearcher extends ISearcher {
 	}
 	else
 	{
-		$html = "<a class = 'searchIcon' data-number='0' target='_blank' href='https://familysearch.org/tree/#view=tree&section=pedigree&person=$id'><img src=\"img/root.png\" height=\"20\" width=\"20\" /></a>";
+		$html = "<a class = 'searchIcon' data-number='0' target='_blank' href='https://familysearch.org/tree/#view=tree&section=pedigree&person=$id'><img src=\"img/RootSpouse.png\" height=\"20\" width=\"20\" /></a>";
 	}
 	return $html;
 }
@@ -61,11 +65,13 @@ class BackwardSearcher extends ISearcher {
 		krsort($ansestors);
 		return $ansestors;
 	}
-	
+	/**
+	* Get the generation of the person
+	*/
 	public function getMaxGen($person,&$maxGen)
 	{
 		$num = $person["display"]["ascendancyNumber"];
-		if (is_numeric ($num))
+		if (is_numeric($num))
 		{
 			$numInt = (int)$num;
 			
@@ -85,6 +91,12 @@ class BackwardSearcher extends ISearcher {
 			{
 				return 1;
 			}
+		}
+		else
+		{
+		
+			return 1;
+			//throw new Exception("Max Generation Not set");
 		}
 		return $maxGen;
 	}

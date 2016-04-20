@@ -35,11 +35,8 @@ function logOn($mainURL, $credentials)
 	
 	//the response will come in the form of an html file
 	$response = $request->getResponseBody();
-	
-
-
-	
-	
+	error_log("https://ident.familysearch.org/cis-web/oauth2/v3/token");
+	error_log($response);
 	$json_a=json_decode($response,true);
 	$credentials['accessToken'] = $json_a['access_token'];
 	setcookie("accessToken", $credentials["accessToken"], time() + 18000);
@@ -66,6 +63,8 @@ function FSQuery($credentials, $queryURL)
 	$credentials['statusCode']= $request->getResponseCode();
 	//echo "<br>Access Token at time of query [".$credentials['accessToken']."]<br>";
 	//setcookie("statusCode",$credentials['statusCode'], time() + 18000);
+	error_log($queryURL);
+	error_log($response);
 	
 	if ($credentials['statusCode']!="200" or $credentials['statusCode']!="204")
 	{
@@ -98,7 +97,9 @@ function FSPOSTQuery($url, $data, $credentials, $optional_headers = 'Content-typ
 	if ($response === false) {
 		throw new Exception("Problem reading data from $url, $php_errormsg");
 	}
-	
+	error_log($url);
+	error_log($data);
+	error_log($response);
 	return $response;
 }
 

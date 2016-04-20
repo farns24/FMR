@@ -1,19 +1,13 @@
 <?php
 require_once("ISearcher.php");
+
+/**
+* Searches for decendants of provided person
+* Extends ISearcher interface.
+*
+*/
 class ForwardSearcher extends ISearcher {
 	
-
-/***************************************************************************************************************************************************************************
-*				Forward Search Recursive Changes
-*
-*
-*    Base Case: Generation is 2. 
-*    * pull remaining 2 generations
-*
-*    If generation is less than 2,
-*    pull one generation
-*
-****************************************************************************************************************************************************************************/
 
 	public function solve(&$ancestors,$mainURL,$credentials,$personObj,&$fsConnect,$generation,&$maxGen,&$html) 
 	{
@@ -48,7 +42,6 @@ class ForwardSearcher extends ISearcher {
 				$ancestors[$searchedPerson["id"]] = $searchedPerson;
 			}
 		}
-		//throw new Exception("Break Here");
 		return;
 					
 }
@@ -94,14 +87,12 @@ class ForwardSearcher extends ISearcher {
 		}
 		else
 		{
-			$html = "<a class = 'searchIcon' data-number='0' target='_blank' href='https://familysearch.org/tree/#view=tree&section=pedigree&person=$id'><img src=\"img/root.png\" height=\"20\" width=\"20\" /></a>";
+			$html = "<a class = 'searchIcon' data-number='0' target='_blank' href='https://familysearch.org/tree/#view=tree&section=pedigree&person=$id'><img src=\"img/gen2.png\" height=\"20\" width=\"20\" /></a>";
 		}
 		
 	}
-	//echo $thisGen;
 	if ($thisGen> $maxGen)
 	{
-		
 		$maxGen = $thisGen;
 	}
 	return $html;
@@ -117,6 +108,4 @@ class ForwardSearcher extends ISearcher {
 		return $maxGen;
 	}
 }
-
-
 ?>

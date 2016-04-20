@@ -1,49 +1,54 @@
 <?php
 require_once('Singleton.php');
-/**
-* Inserts a location into family search
-*@pre $key is not null
-*@pre $key is not a duplicate
-*@pre $lat $lon, and $iso are not null
-*
-*@post location is stored in database
-*/
 
+/**
+* Database Access Object for Postgres Familysearch Database.
+*
+*/
 class DAO {
 
-	
+	/**
+	* Tests field for validity
+	*/
 	private function isValidField($param)
 	{
 		//var_dump($param);
 		if (!isset($param))
 		{
-			echo "<div class='well'>$param is not set</div>";
+			//echo "<div class='well'>$param is not set</div>";
 			return false;
 		}
 		else if (empty($param) and $param !='0' and $param!=0)
 		{
-			echo "<div class='well'>$param ==\"\"</div></br>";
+			//echo "<div class='well'>$param ==\"\"</div></br>";
 			return false;
 		}
 		else if ($param == -999)
 		{
-			echo "<div class='well'>$param == -999</div>";
+			//echo "<div class='well'>$param == -999</div>";
 			return false;
 		}
 		else if ($param == "-999")
 		{
-			echo "<div class='well'>$param == \"-999\"</div>";
+			//echo "<div class='well'>$param == \"-999\"</div>";
 			return false;
 		}
 		
 		return true;
 	}
+	
 	/**
-	*@pre $key is type intiger
+	* Inserts a location into family search
+	*@pre $key is not null
+	*@pre $key is not a duplicate
+	*@pre $lat $lon, and $iso are not null
+	*
+	*@post location is stored in database
 	*/
 	public function insertISOLocation($key, $normalized, $lat, $lng, $iso)
 	{
-		if ( $this->isValidField($lat) && $this->isValidField($lng))
+		$this->prepName($normalized);
+		if ( $this->isValidField($lat) && $this->isValidField($lng) and $normalized!="")
 		{
 
 		$command = "INSERT INTO fsplacesiso (fsid, name, lat, lng, iso) SELECT '$key', '$normalized', '$lat', $lng, '$iso' WHERE
@@ -63,9 +68,12 @@ class DAO {
 
 	}
 	
+	/**
+	* Removes duplicates from the database
+	*/
 	public function clean()
 	{
-		$command = "SELECT fsid,lat,lng FROM fsplacesiso;";
+		$command = "SELECT fsid,name,lat,lng FROM fsplacesiso;";
 		$result = $this->runCommand($command);
 		
 		
@@ -73,12 +81,9 @@ class DAO {
 		
 		foreach($rows as $row)
 		{
-			if ($this->isValidField($row[1]) && $this->isValidField($row[2]))
+			if ($row[1]=="")
 			{
-				continue;
-			}
-			else
-			{
+			
 				//echo "<b>Removed</b><br/>";
 				//var_dump($row);
 				$this->deleteFromDb((int)$row[0]);
@@ -88,10 +93,21 @@ class DAO {
 		pg_close();
 		
 	}
-	
+	/**
+	* 
+	* Looks up item by name
+	*
+	* @param - place name to be searched
+	* @pre - not url encoded
+	* 
+	* @return place details if place is contained. null otherwise.
+	*/
 	public function fetchByName($placeName)
 	{
-		$query = "SELECT placeName, pid FROM PlaceToId WHERE placeName='$placeName';";
+		$this->prepName($placeName);
+		
+		//$query = "SELECT placeName, pid FROM PlaceToId WHERE placeName='$placeName';";
+		$query = "SELECT name, fsid, lat, lng, iso FROM fsplacesiso WHERE name='$placeName';";
 		$result = $this->runCommand($query);
 		$row = pg_fetch_row($result);
 							
@@ -99,6 +115,11 @@ class DAO {
 		return $row;
 	}
 
+	/**
+	* Finds place details in database by PlaceId
+	*
+	* @param: Place Id
+	*/
 	public function fetchFromDb($placeId)
 	{
 		//echo "<b>$placeId</b><br/>";
@@ -111,6 +132,9 @@ class DAO {
 		
 	}
 
+	/**
+	* Deletes entry from database by Place Id
+	*/
 	public function deleteFromDb($placeId)
 	{
 		$result = $this->runCommand("DELETE FROM fsplacesiso WHERE fsid=$placeId;");
@@ -118,6 +142,10 @@ class DAO {
 		
 	}
 
+	/**
+	* Clears Database table
+	*
+	*/
 	public function clearISOTable()
 	{
 		$command = "DELETE FROM fsplacesiso;";
@@ -127,6 +155,9 @@ class DAO {
 		pg_close();
 	}
 
+	/**
+	* Displays the contents of the database
+	*/
 	public function dbDump()
 	{
 		$command = "SELECT * FROM fsplacesiso;";
@@ -145,7 +176,10 @@ class DAO {
 		}
 		pg_close();
 	}
-
+	
+	/**
+	* Executes query in Postgres
+	*/
 	public function runCommand($command)
 	{
 		$pgConnection = pg_connect('host=localhost port=5432 dbname=familysearch user=familysearch password=familysearch');
@@ -279,6 +313,20 @@ class DAO {
 			array_push($test["info"],"Failed Remove Sedalia CT");
 		}
 		return $test;
+	}
+	
+	/**
+	* Tests for url encoding. If name is url encoded, un-url encodes name. 
+	*/
+	private function prepName(&$placeName)
+	{
+		if (strpos($placeName,"%")!==false)
+		{
+			$placeName = urldecode($placeName);
+			//throw new Exception("URL encoded Database item");
+		}
+		str_replace("'","",$placeName);
+	
 	}
 }
 

@@ -32,8 +32,10 @@ require_once("dataTesterFiles\FileManager.php");
 global $rootLatLonArray;
 
 /**
-* @pre $credentials contain access Token
 *
+* Calculates statistics for search sample
+*
+* @pre $credentials contain access Token
 */
 function dataTester($fileName,$credentials)
 {
@@ -253,7 +255,7 @@ function dataTester($fileName,$credentials)
 			($numFamilies != 0)? $analysisFileOutput .= $numFamilies.":" : $analysisFileOutput .= "N/A:";
 			
 			// Total number of people
-			$numPeople = getTotalPeopleCount($famArray);	
+			$numPeople = getTotalPeopleCount($rootList,$firstList,$secondList,$thirdList,$fourthList);	
 			$htmlOut = str_replace("%numPeople%", $numPeople, $htmlOut);
 			
 			$genFinder = new GenResultsFinder();
@@ -720,15 +722,9 @@ function addFileName($fileName,$analysisFileOutput){
 			}
 	
 }
-function getTotalPeopleCount($famArray){
-	$numPeople = 0;
-			foreach($famArray as $family)
-			{
-				
-				$numPeople += count($family->members);
-			}
-	return $numPeople;		
-}
+function getTotalPeopleCount($rootList,$firstList,$secondList,$thirdList,$fourthList){
+		return $rootList->size() + $firstList->size() + $secondList->size() + $thirdList->size() + $fourthList->size();
+	}
 
 function testSetChildren($test)
 {

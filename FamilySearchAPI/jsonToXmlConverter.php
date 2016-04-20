@@ -111,20 +111,13 @@
 	function loadChildren($w,$credentials,$json,$mainURL)
 	{
 		$fsConnect = FmrFactory::createFsConnect();
-		//form url for parents request
-		//echo "<br>PersonResponse [".json_encode($json)."]<br>";
+
 		if (isset($json) && isset($json['id']))
 		{
 			$childrenLinkUrl = $mainURL."platform/tree/persons/".$json['id']."/children";
-			//$childrenLinkUrl = $json["links"]["children"]["href"];
-			//echo "<br>parentUrl [".$parentLinkUrl."]<br>";
-			//echo "<h1>Get Children</h1>".$childrenLinkUrl;
+			
 			$childrenStructure = $fsConnect->getFSXMLResponse($credentials, $childrenLinkUrl);
 			
-			//echo "<br>parentResponse [".json_encode($parentStructure)."]<br>";
-			//echo "<br><br>";
-			//echo json_encode($childrenStructure);
-			//echo "<br><br>";
 			if (isset($childrenStructure))
 			{
 			$w->startElement("children");
@@ -252,8 +245,12 @@
 							{
 								$placeNorm = $place["original"];
 							}
-						
+							
 							$pid = getPlaceId($placeNorm,$credentials);
+							
+							//echo "<h2>$placeNorm</h2>";
+							//echo "<h2>$pid</h2>";
+							
 							$w->writeElement("original",$placeNorm);
 							$w->startElement("normalized");
 							$w->writeAttribute("id",$pid);

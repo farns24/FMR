@@ -1,7 +1,18 @@
 <?php
-
+	/**
+	* Finds number of locations possible, found, and unique for each generation.
+	*/
 	class GenResultsFinder {
 
+		/**
+		* Counts the number of results found, unique, and possible
+		* 
+		* @param $list - instance of StatList. Generation data.
+		* @param $gen - number of generations removed from root
+		* @param $analysisFileOutput - File output of the analysis
+		* @param $htmlOut - html of statistics. 
+		* @param $numFamilies - Number of familes in the base generation
+		*/
 		public function solve($list,$gen,&$analysisFileOutput, &$htmlOut,$numFamilies)
 		{
 			$genknow = $this->getGenCount($list->getTotal());
@@ -29,10 +40,10 @@
 		private function getGenCount($firstArray){
 	
 		$gen1know = 0;
-				foreach($firstArray as $person)
-				{
-					$gen1know += $person->getNumChild();
-				}
+			foreach($firstArray as $person)
+			{
+				$gen1know += $person->getNumChild();
+			}
 		return $gen1know;
 		}
 	}
